@@ -1,0 +1,13 @@
+.\objects\net_debug.o: RTE\Network\Net_Debug.c
+.\objects\net_debug.o: E:\Arm\Packs\Keil\MDK-Middleware\7.13.0\Network\Include\net_debug.h
+.\objects\net_debug.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+.\objects\net_debug.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdarg.h
+.\objects\net_debug.o: E:\Arm\Packs\Keil\MDK-Middleware\7.13.0\Network\Include\rl_net_lib.h
+.\objects\net_debug.o: E:\Arm\Packs\Keil\MDK-Middleware\7.13.0\Network\Include\rl_net_ds.h
+.\objects\net_debug.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\net_debug.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+.\objects\net_debug.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\objects\net_debug.o: .\RTE\_Application\RTE_Components.h
+.\objects\net_debug.o: E:\Arm\Packs\Keil\MDK-Middleware\7.13.0\Network\Include\net_evr.h
+.\objects\net_debug.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\net_debug.o: E:\Arm\Packs\Keil\ARM_Compiler\1.6.3\Include\EventRecorder.h

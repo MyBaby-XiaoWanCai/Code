@@ -1,0 +1,339 @@
+
+#include "bsp_tcp.h"
+#include "bsp_CRC16.h"
+#include "string.h"
+
+uint8_t CMD[TCP_RX_BUFFSIZE] = {0}; //数据接收1级缓存
+uint8_t tcp_recvbuf[TCP_RX_BUFFSIZE];        //TCP client 接受数据2级缓冲区
+uint8_t tcp_sentbuf[TCP_TX_BUFFSIZE];        //TCP_client 发送数据缓冲区
+uint16_t Num_Recived;     //接收数据长度
+uint8_t  TCP_SERVER_FLAG;  //接收标志
+uint8_t Status_Recive = 0;
+uint32_t Write_ADDR = ADDR_FLASH_SECTOR_5;   //写起始地址
+void W5500_TCP_Server(void)
+{
+    uint8_t i, Socket_SR;
+    uint16_t uwCmdLen;     //接收数据长度
+    uint16_t Frame_len;
+    static uint8_t  Incomplete_Flag = 0;
+    Socket_SR = getSn_SR(Socket_0);  // 获取Socket_0的状态
+    switch(Socket_SR)
+    {
+        case SOCK_CLOSED:
+            W5500_socket(Socket_0, Sn_MR_TCP, W5500_localport , Sn_MR_ND);       /*打开socket0,绑定端口5000*/
+            break;
+        case SOCK_INIT:
+            W5500_listen(Socket_0);                                    /*开始监听*/
+            break;
+        case SOCK_ESTABLISHED:
+            //先检查是否有发送，然后检查是否有接收
+            // if(W5500_Service.Ptr->Data_TX[W5500_Service.Cnt_TX_CH].Req_TX==TRUE)
+            for(W5500_Service.Cnt_TX_CH = 0; W5500_Service.Cnt_TX_CH < W5500_Service.Ptr->Num_TX_CH; W5500_Service.Cnt_TX_CH++)
+            {
+                if(W5500_Service.Ptr->Data_TX[W5500_Service.Cnt_TX_CH].Req_TX == 1)
+                {
+
+                    sWrite_SOCK_Data_Buffer(W5500_Service.Ptr->Index_Socket, &W5500_Service.Ptr->Data_TX[W5500_Service.Cnt_TX_CH].Data[0], W5500_Service.Ptr->Data_TX[W5500_Service.Cnt_TX_CH].Num_To_TX);
+                    W5500_Service.Ptr->Data_TX[W5500_Service.Cnt_TX_CH].Req_TX = 0;
+                    W5500_Service.Ptr->Data_TX[W5500_Service.Cnt_TX_CH].Num_To_TX = 0;
+                }
+            }
+            //读取接收
+            if(getSn_IR(Socket_0) & Sn_IR_CON)
+            {
+                setSn_IR(Socket_0, Sn_IR_CON);                                                            /*清除接收中断标志位*/
+            }
+            uwCmdLen = getSn_RX_RSR(Socket_0);                                                       /*获取接收数据长度*/
+            if(uwCmdLen > 0)
+            {
+                W5500_recv(Socket_0, CMD, uwCmdLen);
+                Status_Recive = 0x01; //接收成功
+                Num_Recived = uwCmdLen;
+
+
+            }
+
+            break;
+        case SOCK_CLOSE_WAIT:
+            W5500_disconnect(Socket_0);    //断开连接
+            W5500_close(Socket_0);
+            break;
+        default
+                :
+            break;
+    }
+}
+
+
+/*
+*********************************************************************************************************
+*   函 数 名: Socket_Receive
+*   功能说明: 网口接收数据缓存拷贝处理
+*   形    参: 无
+*   返 回 值: 无
+*********************************************************************************************************
+*/
+
+void Socket_Receive(void)
+{
+    if((!(TCP_SERVER_FLAG & 0x40)) && (Status_Recive == 0x01))
+    {
+        memset(tcp_recvbuf, 0, TCP_RX_BUFFSIZE);  //缓存清空
+
+        memcpy(tcp_recvbuf, CMD, Num_Recived);     //拷贝数据
+
+        TCP_SERVER_FLAG |= 1 << 6;              //标记接受到数据了
+
+        Status_Recive = 0; //清除接收标志
+    }
+
+}
+
+/*
+*********************************************************************************************************
+*   函 数 名: TCP_RX_Data_Analysis
+*   功能说明: 网口接收数据处理
+*   形    参: 无
+*   返 回 值: 无
+*********************************************************************************************************
+*/
+uint16_t Pack_NO = 0;
+void TCP_RX_Data_Analysis(void)
+{
+    uint16_t Data_Crc = 0xFFFF;
+    uint16_t Buf_Crc = 0x0000;
+    uint16_t TBuf_Crc = 0x0000;
+    uint16_t Data_Len = 0;
+    uint16_t Data_Start = 0;
+    uint16_t Data_End = 0;
+    uint16_t RX_Pack_NO = 0;
+    static uint8_t  Data_Buf[TCP_TX_BUFFSIZE];
+    uint32_t  Addr_Start = 0;
+    uint32_t  Addr_End = 0;
+    memset(Data_Buf, 0, TCP_TX_BUFFSIZE);
+    if(TCP_SERVER_FLAG & 0x40) //如果接收到了数据
+    {
+        memset(tcp_sentbuf, 0, TCP_TX_BUFFSIZE);      //发送缓存清零
+        Data_Len = (uint16_t)(tcp_recvbuf[3] << 8) + tcp_recvbuf[2];
+        Data_Start = (uint16_t)(tcp_recvbuf[1] << 8) + tcp_recvbuf[0];
+        RX_Pack_NO = (uint16_t)(tcp_recvbuf[8] << 8) + tcp_recvbuf[7];
+        Data_End = (uint16_t)(tcp_recvbuf[Data_Len + 3] << 8) + tcp_recvbuf[Data_Len + 2];
+        Buf_Crc = (uint16_t)(tcp_recvbuf[Data_Len + 1] << 8) + tcp_recvbuf[Data_Len];
+        Data_Crc = CRC16N(&tcp_recvbuf[2], Data_Len - 2);
+
+        if((Data_Start == 0x5A5A) && (Data_End == 0xA5A5)) //帧头帧尾
+        {
+            tcp_sentbuf[0] = 0x5A;
+            tcp_sentbuf[1] = 0x5A;
+            switch(tcp_recvbuf[5])
+            {
+                case Upgrade_CMD:
+                {
+                    //1
+                    switch(tcp_recvbuf[6])
+                    {
+                            //2
+                        case Query_Boot_CMD:
+                        {
+                            if(Data_Len == 7)
+                            {
+                                if(Data_Crc == Buf_Crc)
+                                {
+                                    tcp_sentbuf[7] = 0x01; //Boot标志OK
+                                }
+                                else
+                                { tcp_sentbuf[7] = 0x02; }
+                            }
+                            else
+                            { tcp_sentbuf[7] = 0x03; }
+                            tcp_sentbuf[2] = 0x08;
+                            tcp_sentbuf[3] = 0x00;
+                            tcp_sentbuf[4] = tcp_recvbuf[4];
+                            tcp_sentbuf[5] = 0x0E;
+                            tcp_sentbuf[6] = Query_Boot_CMD;
+                            TBuf_Crc = CRC16N(&tcp_sentbuf[2], 6);
+                            memcpy(&tcp_sentbuf[8], &TBuf_Crc, 2);
+                            tcp_sentbuf[10] = 0xA5;
+                            tcp_sentbuf[11] = 0xA5;
+                            //添加发送
+                            TCP_SERVER_FLAG &= ~(1 << 6);   //标记数据已被处理
+
+                            while(!(TCP_SERVER_FLAG & 0x80))
+                            {
+                                TCP_SERVER_FLAG |= 1 << 7;  //标记要发送数据
+                            }
+
+                            W5500_send(0, tcp_sentbuf, 12);
+
+                            break;
+                        }
+                        case Flash_Erase_CMD:
+                        {
+                            if(Data_Len == 15)
+                            {
+                                if(Data_Crc == Buf_Crc)
+                                {
+                                    Write_ADDR = ADDR_FLASH_SECTOR_5;
+                                    memcpy(&Addr_Start, &tcp_recvbuf[7], 4);
+                                    memcpy(&Addr_End, &tcp_recvbuf[11], 4);
+
+                                    __set_PRIMASK(1);  /* 禁止全局中断 */
+                                    if(Flash_In_Erase(ADDR_FLASH_SECTOR_5, ADDR_FLASH_SECTOR_6) == 0) //最大到11，目前只擦除2个扇区合计516K
+                                    {
+                                        tcp_sentbuf[7] = 0x01;
+                                        Pack_NO = 0;
+                                    }
+                                    else
+                                    { tcp_sentbuf[7] = 0x05; }
+                                    __set_PRIMASK(0);   /* 使能全局中断 */
+
+                                }
+                                else
+                                { tcp_sentbuf[7] = 0x02; }
+                            }
+                            else
+                            { tcp_sentbuf[7] = 0x03; }
+                            tcp_sentbuf[2] = 0x08;
+                            tcp_sentbuf[3] = 0x00;
+                            tcp_sentbuf[4] = tcp_recvbuf[4];
+                            tcp_sentbuf[5] = 0x0E;
+                            tcp_sentbuf[6] = Flash_Erase_CMD;
+                            TBuf_Crc = CRC16N(&tcp_sentbuf[2], 6);
+                            memcpy(&tcp_sentbuf[8], &TBuf_Crc, 2);
+                            tcp_sentbuf[10] = 0xA5;
+                            tcp_sentbuf[11] = 0xA5;
+                            //添加发送
+                            TCP_SERVER_FLAG &= ~(1 << 6);   //标记数据已被处理
+
+                            while(!(TCP_SERVER_FLAG & 0x80))
+                            {
+                                TCP_SERVER_FLAG |= 1 << 7;  //标记要发送数据
+                            }
+
+                            W5500_send(0, tcp_sentbuf, 12);
+
+                        }
+                        break;
+                        
+                        case Flash_Write_CMD:
+                        {
+                            if(Data_Len == 1033)
+                            {
+                                if(Data_Crc == Buf_Crc)
+                                {
+                                    if(RX_Pack_NO == Pack_NO)
+                                    {
+                                        tcp_sentbuf[7] = 0x01;
+                                        memcpy(&Data_Buf[0], &tcp_recvbuf[9], 1024);
+                                        __set_PRIMASK(1);  /* 禁止全局中断 */
+                                        if(Flash_In_Write_DoubleWORD(Write_ADDR, &Data_Buf[0], 1024) != 0)
+                                        {
+                                            tcp_sentbuf[7] = 0x05;
+                                        }
+                                        else
+                                        {
+                                            Write_ADDR = Write_ADDR + 1024; //地址增加
+                                            Pack_NO++;
+                                        }
+                                        __set_PRIMASK(0);  /* 使能全局中断 */
+                                    }
+                                    else
+                                    { tcp_sentbuf[7] = 0x04; }
+                                }
+                                else
+                                { tcp_sentbuf[7] = 0x02; }
+                            }
+                            else
+                            { tcp_sentbuf[7] = 0x03; }
+                            tcp_sentbuf[2] = 0x08;
+                            tcp_sentbuf[3] = 0x00;
+                            tcp_sentbuf[4] = tcp_recvbuf[4];
+                            tcp_sentbuf[5] = 0x0E;
+                            tcp_sentbuf[6] = Flash_Write_CMD;
+                            TBuf_Crc = CRC16N(&tcp_sentbuf[2], 6);
+                            memcpy(&tcp_sentbuf[8], &TBuf_Crc, 2);
+                            tcp_sentbuf[10] = 0xA5;
+                            tcp_sentbuf[11] = 0xA5;
+                            //添加发送
+                            TCP_SERVER_FLAG &= ~(1 << 6);   //标记数据已被处理
+
+                            while(!(TCP_SERVER_FLAG & 0x80))
+                            {
+                                TCP_SERVER_FLAG |= 1 << 7;  //标记要发送数据
+                            }
+
+                            W5500_send(0, tcp_sentbuf, 12);
+
+                        }
+                        break;
+                        case JMP_APP_CMD:
+                        {
+                            if(Data_Len == 7)
+                            {
+                                if(Data_Crc == Buf_Crc)
+                                {
+                                    tcp_sentbuf[7] = 0x01;
+                                    tcp_sentbuf[2] = 0x08;
+                                    tcp_sentbuf[3] = 0x00;
+                                    tcp_sentbuf[4] = tcp_recvbuf[4];
+                                    tcp_sentbuf[5] = 0x0E;
+                                    tcp_sentbuf[6] = JMP_APP_CMD;
+                                    TBuf_Crc = CRC16N(&tcp_sentbuf[2], 6);
+                                    memcpy(&tcp_sentbuf[8], &TBuf_Crc, 2);
+                                    tcp_sentbuf[10] = 0xA5;
+                                    tcp_sentbuf[11] = 0xA5;
+                                    //添加发送
+                                    TCP_SERVER_FLAG &= ~(1 << 6);   //标记数据已被处理
+
+                                        while(!(TCP_SERVER_FLAG & 0x80))
+                                        {
+                                            TCP_SERVER_FLAG |= 1 << 7;  //标记要发送数据
+                                        }
+                                        TCP_UserSent(tcp_sentbuf, 12);
+
+                                    EEPROM_WriteOneByte(Boot_Flag_addr - 1, 0xAA);
+                                    EEPROM_WriteOneByte(Boot_Flag_addr, 0x55);
+                                    Boot_JMP_APP();
+                                }
+                                else
+                                { tcp_sentbuf[7] = 0x02; }
+                            }
+                            else
+                            { tcp_sentbuf[7] = 0x03; }
+
+                            tcp_sentbuf[2] = 0x08;
+                            tcp_sentbuf[3] = 0x00;
+                            tcp_sentbuf[4] = tcp_recvbuf[4];
+                            tcp_sentbuf[5] = 0x0E;
+                            tcp_sentbuf[6] = JMP_APP_CMD;
+                            TBuf_Crc = CRC16N(&tcp_sentbuf[2], 6);
+                            memcpy(&tcp_sentbuf[8], &TBuf_Crc, 2);
+                            tcp_sentbuf[10] = 0xA5;
+                            tcp_sentbuf[11] = 0xA5;
+                            //添加发送
+                            TCP_SERVER_FLAG &= ~(1 << 6);   //标记数据已被处理
+
+
+                            while(!(TCP_SERVER_FLAG & 0x80))
+                            {
+                                TCP_SERVER_FLAG |= 1 << 7;  //标记要发送数据
+                            }
+
+                            W5500_send(0, tcp_sentbuf, 12);
+
+                        }
+                        break;
+                        default
+                                :
+                            break;
+                    }
+                    break;
+                }
+                default
+                        :
+                    break;
+            }
+        }
+        TCP_SERVER_FLAG &= ~(1 << 6);   //标记数据已被处理
+    }
+}

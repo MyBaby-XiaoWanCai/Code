@@ -1,0 +1,6 @@
+--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ..\User_Bsp -I ..\w5500_sdk
+-I.\RTE\_JN95bootV1.2
+-IC:\Users\JC\AppData\Local\Arm\Packs\ARM\CMSIS\5.6.0\CMSIS\Core\Include
+-IC:\Users\JC\AppData\Local\Arm\Packs\Keil\STM32F4xx_DFP\2.15.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include
+-D__UVISION_VERSION="528" -D_RTE_ -DSTM32F429xx -DUSE_HAL_DRIVER -DSTM32F429xx
+-o .\jn95bootv1.2\stm32f4xx_hal_tim_ex.o --depend .\jn95bootv1.2\stm32f4xx_hal_tim_ex.d --feedback ".\JN95bootV1.2\JN95bootV1.fed" "../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c"

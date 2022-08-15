@@ -1,0 +1,10 @@
+.\objects\phy_ksz8041nl.o: ..\..\RL-ARM\Driver\PHY_KSZ8041NL.c
+.\objects\phy_ksz8041nl.o: ..\..\RL-ARM\Driver\PHY_KSZ8041NL.h
+.\objects\phy_ksz8041nl.o: ..\..\Libraries\CMSIS\Driver\Include\Driver_ETH.h
+.\objects\phy_ksz8041nl.o: ..\..\Libraries\CMSIS\Driver\Include\Driver_Common.h
+.\objects\phy_ksz8041nl.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\objects\phy_ksz8041nl.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\phy_ksz8041nl.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+.\objects\phy_ksz8041nl.o: ..\..\Libraries\CMSIS\Driver\Include\Driver_ETH_PHY.h
+.\objects\phy_ksz8041nl.o: .\RTE\_Application\RTE_Components.h
+.\objects\phy_ksz8041nl.o: E:\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\RTOS2\Include\cmsis_os2.h

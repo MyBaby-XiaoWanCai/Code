@@ -1,0 +1,1 @@
+copy Objects\JN9504.hex ..\JN9504(mdkac5).hex

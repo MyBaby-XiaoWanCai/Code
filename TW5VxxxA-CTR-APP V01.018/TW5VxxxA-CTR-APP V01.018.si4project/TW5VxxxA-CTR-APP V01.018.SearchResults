@@ -1,0 +1,12 @@
+---- Vsense_K Matches (18 in 3 files) ----
+data_analysis.c (Function_User) line 27 : // = { [0].Vsense_K = 0, [1].Vsense_K = 0, [2].Vsense_K = 0, [3].Vsense_K = 0, [4].Vsense_K = 0, [5].Vsense_K = 0, [6].Vsense_K = 0, [7].Vsense_K = 0,
+Calibration_Read in discharge.c (Function_User) :             memcpy(&calibration[0].Vsense_K, &temp32, 4);
+Calibration_Read in discharge.c (Function_User) :             memcpy(&calibration[1].Vsense_K, &temp32, 4);
+Calibration_Read in discharge.c (Function_User) :             memcpy(&calibration[2].Vsense_K, &temp32, 4);
+Calibration_Read in discharge.c (Function_User) :             memcpy(&calibration[3].Vsense_K, &temp32, 4);
+Calibration_Read in discharge.c (Function_User) :             memcpy(&calibration[4].Vsense_K, &temp32, 4);
+Calibration_Read in discharge.c (Function_User) :             memcpy(&calibration[5].Vsense_K, &temp32, 4);
+Calibration_Read in discharge.c (Function_User) :             memcpy(&calibration[6].Vsense_K, &temp32, 4);
+Calibration_Read in discharge.c (Function_User) :             memcpy(&calibration[7].Vsense_K, &temp32, 4);
+Task_10ms_Callback in task_process.c (Function_User) :     //     // filter_data_now[i].v_sense = (float)((calibration[i].Vsense_K * (ad_sample[i].v_sense / sample_counter)) / 16777216) + calibration[i].Vsense_B;
+Task_10ms_Callback in task_process.c (Function_User) :     //     filter_data_now[i].v_sense = (float)((calibration[i].Vsense_K * (ad_sample[i].v_sense / sample_counter)) / 65536) + calibration[i].Vsense_B;

@@ -1,0 +1,5 @@
+---- RUN_LED_G Matches (4 in 3 files) ----
+main in main.c (Src) :     led_control = NORMAL_LED^(RUN_LED_G+CH1_LED_G+CH2_LED_G+CH3_LED_G);
+led_run_setting in variable.c (Function_User) :                     *led_value = (*led_value | RUN_LED_R) & (~RUN_LED_G);
+led_run_setting in variable.c (Function_User) :                     *led_value = (*led_value | RUN_LED_G) & (~RUN_LED_R);
+variable.h (Function_User) line 33 : #define RUN_LED_G 0x0001

@@ -1,0 +1,12 @@
+.\output\debug\system_hc32f4a0sitb.o: ..\..\User\system_hc32f4a0sitb.c
+.\output\debug\system_hc32f4a0sitb.o: ..\..\User\hc32_common.h
+.\output\debug\system_hc32f4a0sitb.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\output\debug\system_hc32f4a0sitb.o: ..\..\User\hc32f4a0sitb.h
+.\output\debug\system_hc32f4a0sitb.o: E:\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include\core_cm4.h
+.\output\debug\system_hc32f4a0sitb.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\output\debug\system_hc32f4a0sitb.o: E:\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_version.h
+.\output\debug\system_hc32f4a0sitb.o: E:\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_compiler.h
+.\output\debug\system_hc32f4a0sitb.o: E:\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_armcc.h
+.\output\debug\system_hc32f4a0sitb.o: E:\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include\mpu_armv7.h
+.\output\debug\system_hc32f4a0sitb.o: E:\Arm\Packs\HDSC\HC32F4A0\1.0.4\Device\Include\system_hc32f4a0.h
+.\output\debug\system_hc32f4a0sitb.o: ..\..\User\system_hc32f4a0sitb.h

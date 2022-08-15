@@ -1,0 +1,1 @@
+copy output\debug\HC32F4A0SITB.hex output\JN95_HD(mdkac5).hex

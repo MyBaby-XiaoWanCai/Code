@@ -1,0 +1,107 @@
+[info] Log at : 2022/7/21|11:44:46|GMT+0800
+
+[info] Log at : 2022/7/21|11:44:56|GMT+0800
+
+[info] Log at : 2022/7/21|15:37:31|GMT+0800
+
+[info] Log at : 2022/7/21|16:29:58|GMT+0800
+
+[info] Log at : 2022/7/21|18:34:22|GMT+0800
+
+[info] Log at : 2022/7/26|08:57:27|GMT+0800
+
+[info] Log at : 2022/7/26|08:57:33|GMT+0800
+
+[info] Log at : 2022/8/6|10:51:45|GMT+0800
+
+[info] Log at : 2022/8/6|10:51:58|GMT+0800
+
+[info] Log at : 2022/8/6|11:13:37|GMT+0800
+
+[SyntaxError: Unexpected token / in JSON at position 1709
+	at JSON.parse (<anonymous>)
+	at F.updateCppProperties (c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:10911)
+	at F.<anonymous> (c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:12641)
+	at Generator.next (<anonymous>)
+	at c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:4542
+	at new Promise (<anonymous>)
+	at r (c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:4287)
+	at F.load (c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:11372)
+	at w.<anonymous> (c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:8799)
+	at Generator.next (<anonymous>)
+	at a (c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:4344)
+	at processTicksAndRejections (node:internal/process/task_queues:96:5)]
+[info] Log at : 2022/8/6|11:13:49|GMT+0800
+
+[SyntaxError: Unexpected token / in JSON at position 1709
+	at JSON.parse (<anonymous>)
+	at F.updateCppProperties (c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:10911)
+	at F.<anonymous> (c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:12641)
+	at Generator.next (<anonymous>)
+	at c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:4542
+	at new Promise (<anonymous>)
+	at r (c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:4287)
+	at F.load (c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:11372)
+	at w.<anonymous> (c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:8799)
+	at Generator.next (<anonymous>)
+	at a (c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:4344)
+	at runMicrotasks (<anonymous>)
+	at processTicksAndRejections (node:internal/process/task_queues:96:5)
+	at runNextTicks (node:internal/process/task_queues:65:3)
+	at listOnTimeout (node:internal/timers:526:9)
+	at processTimers (node:internal/timers:500:7)]
+[info] Log at : 2022/8/6|16:20:19|GMT+0800
+
+[SyntaxError: Unexpected token / in JSON at position 1710
+	at JSON.parse (<anonymous>)
+	at F.updateCppProperties (c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:10911)
+	at F.<anonymous> (c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:12641)
+	at Generator.next (<anonymous>)
+	at c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:4542
+	at new Promise (<anonymous>)
+	at r (c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:4287)
+	at F.load (c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:11372)
+	at w.<anonymous> (c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:8799)
+	at Generator.next (<anonymous>)
+	at a (c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:4344)
+	at processTicksAndRejections (node:internal/process/task_queues:96:5)]
+[info] Log at : 2022/8/8|08:46:52|GMT+0800
+
+[SyntaxError: Unexpected token / in JSON at position 1709
+	at JSON.parse (<anonymous>)
+	at F.updateCppProperties (c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:10911)
+	at F.<anonymous> (c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:12641)
+	at Generator.next (<anonymous>)
+	at c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:4542
+	at new Promise (<anonymous>)
+	at r (c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:4287)
+	at F.load (c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:11372)
+	at w.<anonymous> (c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:8799)
+	at Generator.next (<anonymous>)
+	at a (c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:4344)
+	at runMicrotasks (<anonymous>)
+	at processTicksAndRejections (node:internal/process/task_queues:96:5)]
+[SyntaxError: Unexpected token / in JSON at position 1709
+	at JSON.parse (<anonymous>)
+	at F.updateCppProperties (c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:10911)
+	at F.<anonymous> (c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:12641)
+	at Generator.next (<anonymous>)
+	at c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:4542
+	at new Promise (<anonymous>)
+	at r (c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:4287)
+	at F.load (c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:11372)
+	at w.<anonymous> (c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:8799)
+	at Generator.next (<anonymous>)
+	at a (c:\Users\hejiong\.vscode\extensions\cl.keil-assistant-1.7.0\dist\extension.js:1:4344)
+	at runMicrotasks (<anonymous>)
+	at processTicksAndRejections (node:internal/process/task_queues:96:5)]
+[info] Log at : 2022/8/8|14:23:44|GMT+0800
+
+[info] Log at : 2022/8/8|14:23:54|GMT+0800
+
+[info] Log at : 2022/8/8|20:19:54|GMT+0800
+
+[info] Log at : 2022/8/9|08:29:42|GMT+0800
+
+[info] Log at : 2022/8/9|16:11:41|GMT+0800
+

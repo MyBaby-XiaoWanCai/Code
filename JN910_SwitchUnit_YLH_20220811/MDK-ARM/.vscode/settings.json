@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "bsp_canlink.h": "c",
+        "bsp_nca9555.h": "c",
+        "bsp_mb85rs2.h": "c",
+        "task_protocol.h": "c",
+        "task_protection.h": "c",
+        "task_led.h": "c",
+        "task_dcdc.h": "c",
+        "cstddef": "c",
+        "limits": "c",
+        "new": "c",
+        "type_traits": "c"
+    }
+}

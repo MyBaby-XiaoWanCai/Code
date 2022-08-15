@@ -1,0 +1,139 @@
+/*
+ * TaskAllot.c
+ *
+ *  Created on: 2021年7月27日
+ *      Author: JC
+ */
+#include "F28x_Project.h"
+
+
+void Task1ms(void)
+{
+     CAN_APP_RX();
+     CAN_APP_TX();
+}
+INT8U testvalue[1];
+void Task2ms(void)
+{
+
+    Upload_Fault_Code();
+    Data_Up();
+    Ctr_LED_Work();
+
+}
+
+
+
+
+void Task10ms(void)
+{
+   // Ctr_LED();
+   // Fan_Fault_Check();
+  //  CAN_APP_TX();
+
+     AD7124_WriteReg(AD7124_CH7_MAP_REG,0|AD7124_CH_MAP_REG_SETUP(0)|AD7124_CH_MAP_REG_AINP(14)|AD7124_CH_MAP_REG_AINM(17),2);
+     AD7124_WriteReg(AD7124_CH1_MAP_REG,AD7124_CH_MAP_REG_CH_ENABLE|AD7124_CH_MAP_REG_SETUP(0)|AD7124_CH_MAP_REG_AINP(1)|AD7124_CH_MAP_REG_AINM(17),2);
+     AD7124_WriteReg(AD7124_ADC_CTRL_REG,AD7124_ADC_CTRL_REG_DATA_STATUS | AD7124_ADC_CTRL_REG_POWER_MODE(2)| AD7124_ADC_CTRL_REG_MODE(1),2);
+     AD7124_WaitFor_Conv_Ready(testvalue,20000);
+     AD7124_Process();
+
+     AD7124_WriteReg(AD7124_CH1_MAP_REG,0|AD7124_CH_MAP_REG_SETUP(0)|AD7124_CH_MAP_REG_AINP(1)|AD7124_CH_MAP_REG_AINM(17),2);
+     AD7124_WriteReg(AD7124_CH3_MAP_REG,AD7124_CH_MAP_REG_CH_ENABLE|AD7124_CH_MAP_REG_SETUP(0)|AD7124_CH_MAP_REG_AINP(3)|AD7124_CH_MAP_REG_AINM(17),2);
+     AD7124_WriteReg(AD7124_ADC_CTRL_REG,AD7124_ADC_CTRL_REG_DATA_STATUS | AD7124_ADC_CTRL_REG_POWER_MODE(2)| AD7124_ADC_CTRL_REG_MODE(1),2);
+     AD7124_WaitFor_Conv_Ready(testvalue,20000);
+     AD7124_Process();
+
+     AD7124_WriteReg(AD7124_CH3_MAP_REG,0|AD7124_CH_MAP_REG_SETUP(0)|AD7124_CH_MAP_REG_AINP(1)|AD7124_CH_MAP_REG_AINM(17),2);
+     AD7124_WriteReg(AD7124_CH5_MAP_REG,AD7124_CH_MAP_REG_CH_ENABLE|AD7124_CH_MAP_REG_SETUP(0)|AD7124_CH_MAP_REG_AINP(5)|AD7124_CH_MAP_REG_AINM(17),2);
+     AD7124_WriteReg(AD7124_ADC_CTRL_REG,AD7124_ADC_CTRL_REG_DATA_STATUS | AD7124_ADC_CTRL_REG_POWER_MODE(2)| AD7124_ADC_CTRL_REG_MODE(1),2);
+     AD7124_WaitFor_Conv_Ready(testvalue,20000);
+     AD7124_Process();
+
+     AD7124_WriteReg(AD7124_CH5_MAP_REG,0|AD7124_CH_MAP_REG_SETUP(0)|AD7124_CH_MAP_REG_AINP(1)|AD7124_CH_MAP_REG_AINM(17),2);
+     AD7124_WriteReg(AD7124_CH7_MAP_REG,AD7124_CH_MAP_REG_CH_ENABLE|AD7124_CH_MAP_REG_SETUP(0)|AD7124_CH_MAP_REG_AINP(7)|AD7124_CH_MAP_REG_AINM(17),2);
+     AD7124_WriteReg(AD7124_ADC_CTRL_REG,AD7124_ADC_CTRL_REG_DATA_STATUS | AD7124_ADC_CTRL_REG_POWER_MODE(2)| AD7124_ADC_CTRL_REG_MODE(1),2);
+     AD7124_WaitFor_Conv_Ready(testvalue,20000);
+     AD7124_Process();
+
+
+    /* AD7124_WriteReg(AD7124_CH6_MAP_REG,0|AD7124_CH_MAP_REG_SETUP(0)|AD7124_CH_MAP_REG_AINP(6)|AD7124_CH_MAP_REG_AINM(17),2);
+     AD7124_WriteReg(AD7124_ADC_CTRL_REG,AD7124_ADC_CTRL_REG_DATA_STATUS | AD7124_ADC_CTRL_REG_POWER_MODE(2)| AD7124_ADC_CTRL_REG_MODE(1),2);
+     AD7124_WriteReg(AD7124_CH8_MAP_REG,AD7124_CH_MAP_REG_CH_ENABLE|AD7124_CH_MAP_REG_SETUP(0)|AD7124_CH_MAP_REG_AINP(8)|AD7124_CH_MAP_REG_AINM(17),2);
+     AD7124_WaitFor_Conv_Ready(testvalue,20000);
+     AD7124_Process();
+     AD7124_WriteReg(AD7124_CH8_MAP_REG,0|AD7124_CH_MAP_REG_SETUP(0)|AD7124_CH_MAP_REG_AINP(8)|AD7124_CH_MAP_REG_AINM(17),2);
+     AD7124_WriteReg(AD7124_ADC_CTRL_REG,AD7124_ADC_CTRL_REG_DATA_STATUS | AD7124_ADC_CTRL_REG_POWER_MODE(2)| AD7124_ADC_CTRL_REG_MODE(1),2);
+     AD7124_WriteReg(AD7124_CH10_MAP_REG,AD7124_CH_MAP_REG_CH_ENABLE|AD7124_CH_MAP_REG_SETUP(0)|AD7124_CH_MAP_REG_AINP(10)|AD7124_CH_MAP_REG_AINM(17),2);
+     AD7124_WaitFor_Conv_Ready(testvalue,20000);
+     AD7124_Process();
+     AD7124_WriteReg(AD7124_CH10_MAP_REG,0|AD7124_CH_MAP_REG_SETUP(0)|AD7124_CH_MAP_REG_AINP(10)|AD7124_CH_MAP_REG_AINM(17),2);
+     AD7124_WriteReg(AD7124_ADC_CTRL_REG,AD7124_ADC_CTRL_REG_DATA_STATUS | AD7124_ADC_CTRL_REG_POWER_MODE(2)| AD7124_ADC_CTRL_REG_MODE(1),2);
+     AD7124_WriteReg(AD7124_CH12_MAP_REG,AD7124_CH_MAP_REG_CH_ENABLE|AD7124_CH_MAP_REG_SETUP(0)|AD7124_CH_MAP_REG_AINP(12)|AD7124_CH_MAP_REG_AINM(17),2);
+     AD7124_WaitFor_Conv_Ready(testvalue,20000);
+     AD7124_Process();
+     AD7124_WriteReg(AD7124_CH12_MAP_REG,0|AD7124_CH_MAP_REG_SETUP(0)|AD7124_CH_MAP_REG_AINP(12)|AD7124_CH_MAP_REG_AINM(17),2);
+     AD7124_WriteReg(AD7124_ADC_CTRL_REG,AD7124_ADC_CTRL_REG_DATA_STATUS | AD7124_ADC_CTRL_REG_POWER_MODE(2)| AD7124_ADC_CTRL_REG_MODE(1),2);
+     AD7124_WriteReg(AD7124_CH14_MAP_REG,AD7124_CH_MAP_REG_CH_ENABLE|AD7124_CH_MAP_REG_SETUP(0)|AD7124_CH_MAP_REG_AINP(14)|AD7124_CH_MAP_REG_AINM(17),2);
+     AD7124_WaitFor_Conv_Ready(testvalue,20000);
+     AD7124_Process();*/
+
+     Data_AD7124_Sum.Sum_J1Vol_AD += ad7124_value[0];
+     Data_AD7124_Sum.Sum_J2Vol_AD += ad7124_value[2];
+     Data_AD7124_Sum.Sum_J3Vol_AD += ad7124_value[4];
+     Data_AD7124_Sum.Sum_J4Vol_AD += ad7124_value[6];
+     Data_AD7124_Sum.Temp235_1=(ad7124_value[8]*0.0000002235174179077-0.5)*100;
+     Data_AD7124_Sum.Temp235_1=(ad7124_value[10]*0.0000002235174179077-0.5)*100;
+     Data_AD7124_Sum.Temp235_1=(ad7124_value[12]*0.0000002235174179077-0.5)*100;
+     Data_AD7124_Sum.Temp235_1=(ad7124_value[14]*0.0000002235174179077-0.5)*100;
+
+     if(++Data_AD7124_Sum.Cnt_Sum>=Data_AD7124_Sum.Num_Avg)
+     {
+         Data_AD7124_Sum.Cnt_Sum=0;
+         Data_AD7124_Sum.Sum_J1Vol_AD_Copy = Data_AD7124_Sum.Sum_J1Vol_AD;
+         Data_AD7124_Sum.J1Vol_AD=Data_AD7124_Sum.Sum_J1Vol_AD_Copy/Data_AD7124_Sum.Num_Avg;
+         Data_AD7124_Sum.Sum_J1Vol_AD=0;
+     }
+     DCDC_Service[0].Now_Vol_JR=ad7124_value[1]*4.25549e-6+0.0356;
+     DCDC_Service[1].Now_Vol_JR=ad7124_value[3]*4.25764e-6+0.0343;//第二路电容电压
+     DCDC_Service[2].Now_Vol_JR=ad7124_value[5]*4.25695e-6+0.030117928;
+     DCDC_Service[3].Now_Vol_JR=ad7124_value[7]*4.25683e-6+0.035533138;
+
+     Process_Average_Analog();
+}
+
+float Compen_Cur[4];
+void Task1s(void)
+{
+    Uint16 i;
+    for(i=0;i<4;i++)
+    {
+        if(Data_Sum[i].Vol_Sense>=2)
+        {
+
+            Compen_Cur[i]= Data_Sum[i].Vol_Sense*0.001259999999999991-0.005299999999999611;
+        }
+        else
+        {
+            Compen_Cur[i]=0;
+        }
+    }
+
+}
+
+void Process_Average_Analog(void)
+{
+    Uint16 i;
+    if(Data_Sum[0].Flag_Refresh == TRUE)
+    {
+       for(i=0;i<4;i++)
+       {
+        Data_Sum[i].Vol_Sense=Data_Sum[i].Sum_Vol_Sense_Copy/Data_Sum[0].Num_Avg;
+        Data_Sum[i].Cur_Out=Data_Sum[i].Sum_Cur_Out_Copy/Data_Sum[0].Num_Avg;
+        Data_Sum[i].Vol_Out=Data_Sum[i].Sum_Vol_Out_Copy/Data_Sum[0].Num_Avg;
+        Data_Sum[i].Vol_Bus=Data_Sum[i].Sum_Vol_Bus_Copy/Data_Sum[0].Num_Avg;
+       }
+        DINT;
+        Data_Sum[0].Flag_Refresh       = FALSE;
+        EINT;
+    }
+}

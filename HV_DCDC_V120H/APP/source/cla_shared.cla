@@ -1,0 +1,681 @@
+//#############################################################################
+// \file \cs30_f2837x\F2837xD_examples_Cpu1\cla_sqrt\cpu01\sqrt.cla
+//
+// \brief  Square Root
+// \author Tri Thai
+// \date   August 2, 2013
+//
+//
+//  Group:             C2000
+//  Target Family:    F2837xD
+//
+//#############################################################################
+// $TI Release: F2837xD Support Library v210 $
+// $Release Date: Tue Nov  1 14:46:15 CDT 2016 $
+// $Copyright: Copyright (C) 2013-2016 Texas Instruments Incorporated -
+//             http://www.ti.com/ ALL RIGHTS RESERVED $
+//#############################################################################
+
+//
+// Included Files
+//
+//#include <cla_shared.h>
+#include "F28x_Project.h"
+//
+// Defines
+//
+//Task 1 (C) Variables
+#ifdef __cplusplus
+#pragma DATA_SECTION("CpuToCla1MsgRAM");
+float fVal; //input
+#pragma DATA_SECTION("Cla1ToCpuMsgRAM");
+float fResult;  //Estimated result
+#else
+#pragma DATA_SECTION(fVal,"CpuToCla1MsgRAM");
+float fVal; //input
+#pragma DATA_SECTION(fResult,"Cla1ToCpuMsgRAM");
+float fResult;  //Estimated result
+#endif //__cplusplus
+//Task 2 (C) Variables
+#ifdef __cplusplus
+#pragma DATA_SECTION("CpuToCla1MsgRAM");
+float fVal2; //input
+#pragma DATA_SECTION("Cla1ToCpuMsgRAM");
+float fResult2;  //Estimated result
+#else
+#pragma DATA_SECTION(fVal2,"CpuToCla1MsgRAM");
+float fVal2; //input
+#pragma DATA_SECTION(fResult2,"Cla1ToCpuMsgRAM");
+float fResult2;  //Estimated result
+#endif //__cplusplus
+//
+// Globals
+//
+
+#pragma DATA_SECTION(pi_id,"CLADataLS0");
+#pragma DATA_SECTION(pi_iq,"CLADataLS0");
+#pragma DATA_SECTION(pi_spd,"CLADataLS0");
+volatile PI_CLA    pi_id,pi_iq,pi_spd;
+#pragma DATA_SECTION(pwm1,"CLADataLS0");
+volatile PWMDRV_3phInv_CLA pwm1;
+
+
+#pragma DATA_SECTION(pwm1,"CLADataLS0");
+volatile float test1;
+#pragma DATA_SECTION(IdRef,"CpuToCla1MsgRAM");
+volatile float IdRef[4];
+
+#pragma DATA_SECTION(PWM_Ready,"CpuToCla1MsgRAM");
+volatile float PWM_Ready[4];
+#pragma DATA_SECTION(MEP_Scale,"CpuToCla1MsgRAM");
+volatile uint32_t  MEP_Scale;
+
+#pragma DATA_SECTION(fclVars, "CLADataLS0");
+FCL_Vars_t fclVars[4];
+#pragma DATA_SECTION(CH_A, "CLADataLS0");
+struct_Channel CH_A[4];               //CHA相关数据
+#pragma DATA_SECTION(CH_B, "CLADataLS0");
+struct_Channel CH_B[4];               //CHB相关数据
+#pragma DATA_SECTION(ADCA_Sample, "CLADataLS0");
+struct_ADCA_Sample ADCA_Sample;
+//
+// Function Definitions
+//*********************************************************************************
+//Description: Buck模式同步整流管PWM控制
+//Parameters : NONE
+//Return     : NONE
+//*********************************************************************************
+void SynRect_Buck(struct_Channel *Ptr)
+{
+    if(Ptr->EN_SynRect==TRUE)
+    {
+        if(Ptr->Flag_SynRect==TRUE)
+        {
+            if(Ptr->PWMxA>=50)
+            {
+                Ptr->PWMxB=Ptr->PWMxA;
+            }
+            else
+            {
+                Ptr->PWMxB=50;
+            }
+        }
+        else
+        {
+
+            if(Ptr->PWMxB>Ptr->PWMxA)
+            {
+                Ptr->PWMxB=Ptr->PWMxB-1;
+
+            }
+            else
+            {
+                Ptr->Flag_SynRect=TRUE;
+                Ptr->PWMxB=Ptr->PWMxA;
+            }
+
+        }
+    }
+    else
+    {
+        Ptr->Cnt_SynRect=0;
+        Ptr->Flag_SynRect=FALSE;
+        Ptr->PWMxB=PWM_PERIOD-PWM_DEADFEDTIME;
+    }
+}
+
+//*********************************************************************************
+//Description: Boost模式同步整流管PWM控制
+//Parameters : NONE
+//Return     : NONE
+//*********************************************************************************
+void SynRect_Boost(struct_Channel *Ptr)
+{
+    if(Ptr->EN_SynRect==TRUE)
+     {
+         if(Ptr->Flag_SynRect==TRUE)
+         {
+             if(Ptr->PWMxB<950)
+             {
+                 Ptr->PWMxA=Ptr->PWMxB;
+             }
+             else
+             {
+                 Ptr->PWMxA=950;
+             }
+         }
+         else
+          {
+             if(Ptr->PWMxA<Ptr->PWMxB)
+             {
+                 Ptr->PWMxA=Ptr->PWMxA+1;
+             }
+             else
+             {
+                 Ptr->Flag_SynRect=TRUE;
+                 Ptr->PWMxA=Ptr->PWMxB;
+             }
+
+         }
+     }
+     else
+     {
+         Ptr->Cnt_SynRect=0;
+         Ptr->Flag_SynRect=FALSE;
+         Ptr->PWMxA=PWM_DEADREDTIME;
+     }
+}
+
+//Task 1 :y = sqrt(x)
+__interrupt void Cla1Task1 ( void )
+{
+
+        ADCA_Sample.ADC0=(int16)(AdcaResultRegs.ADCRESULT0-10);
+        ADCA_Sample.ADC1=(int16)(AdcaResultRegs.ADCRESULT1-10);
+
+        //取五次采样值平均
+        ADCA_Sample.ADCA_CH_SUM0+=ADCA_Sample.ADC0-ADCA_Sample.ADCA_CH0[ADCA_Sample.resultsIndex1];
+        ADCA_Sample.ADCA_CH0[ADCA_Sample.resultsIndex1]=ADCA_Sample.ADC0;
+
+        ADCA_Sample.ADCA_CH_SUM1+=ADCA_Sample.ADC1-ADCA_Sample.ADCA_CH1[ADCA_Sample.resultsIndex1];
+        ADCA_Sample.ADCA_CH1[ADCA_Sample.resultsIndex1]=ADCA_Sample.ADC1;
+
+        ADCA_Sample.resultsIndex1++;
+        if(ADCA_Sample.resultsIndex1>4)
+        {
+               ADCA_Sample.resultsIndex1=0;
+        }
+
+        fclVars[0].CH_A_PI_Cur.Fbk=ADCA_Sample.ADCA_CH_SUM0*0.01819524440232*0.2;
+        fclVars[0].CH_B_PI_Cur.Fbk=ADCA_Sample.ADCA_CH_SUM1*0.01819524440232*0.2;
+     //  fclVars[0].CH_A_PI_Cur.Fbk=(int16)(AdcaResultRegs.ADCRESULT0-6)*0.01819524440232;
+     //  fclVars[0].CH_B_PI_Cur.Fbk=(int16)(AdcaResultRegs.ADCRESULT1-6)*0.01819524440232;
+
+        //该条件判断为CV时控制时电流为负的处理
+        if(fclVars[0].Neg_Full_Flag==1)
+        {
+             fclVars[0].CH_A_PI_Cur.Fbk=-fclVars[0].CH_A_PI_Cur.Fbk;
+             if(fclVars[0].Isense_Curr<-10)
+            {
+                fclVars[0].CH_A_PI_Cur.Fbk=-10;
+            }
+        }
+       if(fclVars[0].lsw==ENC_ALIGNMENT)
+       {
+
+       }
+       else
+       {
+           //电感电流内环PI控制
+           fclVars[0].CH_A_PI_Cur.Ref=IdRef[0];
+           PI_CLA_MACRO(fclVars[0].CH_A_PI_Cur);
+           fclVars[0].CH_B_PI_Cur.Ref=IdRef[0];
+           PI_CLA_MACRO(fclVars[0].CH_B_PI_Cur);
+
+           if(fclVars[0].lsw==ENC_WAIT_FOR_INDEX)
+           {
+
+               CH_A[0].PWMxA=fclVars[0].CH_A_PI_Cur.Out *PWM_PERIOD;
+               CH_A[0].PWMxAHR = ((float)PWM_PERIOD*fclVars[0].CH_A_PI_Cur.Out-(float)CH_A[0].PWMxA) * MEP_Scale;
+
+               SynRect_Buck(&CH_A[0]);
+
+               CH_B[0].PWMxA=fclVars[0].CH_B_PI_Cur.Out *PWM_PERIOD;
+               CH_B[0].PWMxAHR = ((float)PWM_PERIOD*fclVars[0].CH_B_PI_Cur.Out-(float)CH_B[0].PWMxA) * MEP_Scale;
+
+               SynRect_Buck(&CH_B[0]);
+
+               //CV时只有一个电感电流闭环防止两个闭环形成环流
+               if(fclVars[0].Empty_Full_Flag==0)
+               {
+                      EPwm1Regs.CMPA.bit.CMPA       = CH_A[0].PWMxA;
+                      EPwm1Regs.CMPA.bit.CMPAHR     = CH_A[0].PWMxAHR<<8;
+                      EPwm1Regs.CMPB.bit.CMPB       = CH_A[0].PWMxB;//PWM_DEADTIME
+                      EPwm1Regs.CMPB.bit.CMPBHR     =0;
+                      EPwm1Regs.CMPC =0;
+                      EPwm2Regs.CMPA.bit.CMPA       = CH_A[0].PWMxA;
+                      EPwm2Regs.CMPA.bit.CMPAHR     = CH_A[0].PWMxAHR<<8;
+                      EPwm2Regs.CMPB.bit.CMPB       = CH_A[0].PWMxB;//PWM_DEADTIME
+                      EPwm2Regs.CMPB.bit.CMPBHR     =0;
+                      EPwm2Regs.CMPC =0;
+                      fclVars[0].CH_B_PI_Cur.ui=0;
+                      fclVars[0].CH_B_PI_Cur.up=0;
+                      fclVars[0].CH_B_PI_Cur.v1=0;
+                      fclVars[0].CH_B_PI_Cur.i1=CH_A[0].PWMxA*0.084;
+
+               }
+               else  //两个电感电流闭环
+               {
+                      EPwm1Regs.CMPA.bit.CMPA       = CH_A[0].PWMxA;
+                      EPwm1Regs.CMPA.bit.CMPAHR     = CH_A[0].PWMxAHR<<8;
+                      EPwm1Regs.CMPB.bit.CMPB       = CH_A[0].PWMxB;//PWM_DEADTIME
+                      EPwm1Regs.CMPB.bit.CMPBHR     =0;
+                      EPwm1Regs.CMPC =0;
+                      EPwm2Regs.CMPA.bit.CMPA       = CH_B[0].PWMxA;
+                      EPwm2Regs.CMPA.bit.CMPAHR     = CH_B[0].PWMxAHR<<8;
+                      EPwm2Regs.CMPB.bit.CMPB       = CH_B[0].PWMxB;//PWM_DEADTIME
+                      EPwm2Regs.CMPB.bit.CMPBHR     =0;
+                      EPwm2Regs.CMPC =0;
+
+               }
+           }
+           if(fclVars[0].lsw==ENC_CALIBRATION_DONE)
+           {
+
+                CH_A[0].PWMxB= (1-fclVars[0].CH_A_PI_Cur.Out) *PWM_PERIOD;
+                CH_A[0].PWMxBHR = ((float)PWM_PERIOD*(1-fclVars[0].CH_A_PI_Cur.Out)-(float)CH_A[0].PWMxB) *MEP_Scale;
+
+                //放电同步整流控制
+                SynRect_Boost(&CH_A[0]);
+
+                CH_B[0].PWMxB=(1-fclVars[0].CH_B_PI_Cur.Out)*PWM_PERIOD;
+                CH_B[0].PWMxBHR = ((float)PWM_PERIOD*(1-fclVars[0].CH_B_PI_Cur.Out)-(float)CH_B[0].PWMxB) * MEP_Scale;
+                //放电同步整流控制
+                SynRect_Boost(&CH_B[0]);
+
+                EPwm1Regs.CMPA.bit.CMPA       = CH_A[0].PWMxA;
+                EPwm1Regs.CMPA.bit.CMPAHR     = 0;
+                EPwm1Regs.CMPB.bit.CMPB       = CH_A[0].PWMxB;//PWM_DEADTIME
+                EPwm1Regs.CMPB.bit.CMPBHR     =CH_A[0].PWMxBHR<<8;
+                EPwm1Regs.CMPC =0;
+                EPwm2Regs.CMPA.bit.CMPA       = CH_B[0].PWMxA;
+                EPwm2Regs.CMPA.bit.CMPAHR     =0;
+                EPwm2Regs.CMPB.bit.CMPB       = CH_B[0].PWMxB;//PWM_DEADTIME
+                EPwm2Regs.CMPB.bit.CMPBHR     = CH_B[0].PWMxBHR ;
+                EPwm2Regs.CMPC =0;
+           }
+       }
+
+}
+
+__interrupt void Cla1Task2 ( void )
+{
+
+
+        ADCA_Sample.ADC2=(int16)(AdcaResultRegs.ADCRESULT2-10);
+        ADCA_Sample.ADC3=(int16)(AdcaResultRegs.ADCRESULT3-10);
+
+        ADCA_Sample.ADCA_CH_SUM2+=ADCA_Sample.ADC2-ADCA_Sample.ADCA_CH2[ADCA_Sample.resultsIndex2];
+        ADCA_Sample.ADCA_CH2[ADCA_Sample.resultsIndex2]=ADCA_Sample.ADC2;
+
+        ADCA_Sample.ADCA_CH_SUM3+=ADCA_Sample.ADC3-ADCA_Sample.ADCA_CH3[ADCA_Sample.resultsIndex2];
+        ADCA_Sample.ADCA_CH3[ADCA_Sample.resultsIndex2]=ADCA_Sample.ADC3;
+
+        ADCA_Sample.resultsIndex2++;
+        if(ADCA_Sample.resultsIndex2>4)
+        {
+               ADCA_Sample.resultsIndex2=0;
+        }
+
+        fclVars[1].CH_A_PI_Cur.Fbk=ADCA_Sample.ADCA_CH_SUM2*0.01819524440232*0.2;
+        fclVars[1].CH_B_PI_Cur.Fbk=ADCA_Sample.ADCA_CH_SUM3*0.01819524440232*0.2;
+        if(fclVars[1].Neg_Full_Flag==1)
+        {
+              fclVars[1].CH_A_PI_Cur.Fbk=-fclVars[1].CH_A_PI_Cur.Fbk;
+              if(fclVars[1].Isense_Curr<-10)
+             {
+                 fclVars[1].CH_A_PI_Cur.Fbk=-10;
+             }
+        }
+      // fclVars[1].CH_A_PI_Cur.Fbk=(int16)(AdcaResultRegs.ADCRESULT2-10)*0.01819524440232;
+      // fclVars[1].CH_B_PI_Cur.Fbk=(int16)(AdcaResultRegs.ADCRESULT3-10)*0.01819524440232;
+       if(fclVars[1].lsw==ENC_ALIGNMENT)
+       {
+
+       }
+       else
+       {
+           fclVars[1].CH_A_PI_Cur.Ref=IdRef[1];
+           PI_CLA_MACRO(fclVars[1].CH_A_PI_Cur);
+           fclVars[1].CH_B_PI_Cur.Ref=IdRef[1];
+           PI_CLA_MACRO(fclVars[1].CH_B_PI_Cur);
+
+           if(fclVars[1].lsw==ENC_WAIT_FOR_INDEX)
+           {
+
+
+
+               CH_A[1].PWMxA=fclVars[1].CH_A_PI_Cur.Out *PWM_PERIOD;
+               CH_A[1].PWMxAHR = ((float)PWM_PERIOD*fclVars[1].CH_A_PI_Cur.Out-(float)CH_A[1].PWMxA) * MEP_Scale;
+
+               SynRect_Buck(&CH_A[1]);
+
+               CH_B[1].PWMxA=fclVars[1].CH_B_PI_Cur.Out *PWM_PERIOD;
+               CH_B[1].PWMxAHR = ((float)PWM_PERIOD*fclVars[1].CH_B_PI_Cur.Out-(float)CH_B[1].PWMxA) * MEP_Scale;
+
+               SynRect_Buck(&CH_B[1]);
+
+
+               if(fclVars[1].Empty_Full_Flag==0)
+               {
+                    EPwm3Regs.CMPA.bit.CMPA       = CH_A[1].PWMxA;
+                    EPwm3Regs.CMPA.bit.CMPAHR     = CH_A[1].PWMxAHR<<8;
+                    EPwm3Regs.CMPB.bit.CMPB       = CH_A[1].PWMxB;//PWM_DEADTIME
+                    EPwm3Regs.CMPB.bit.CMPBHR     =0;
+                    EPwm3Regs.CMPC =0;
+                    EPwm4Regs.CMPA.bit.CMPA       = CH_A[1].PWMxA;
+                    EPwm4Regs.CMPA.bit.CMPAHR     =  CH_A[1].PWMxAHR<<8;
+                    EPwm4Regs.CMPB.bit.CMPB       =  CH_A[1].PWMxB;//PWM_DEADTIME
+                    EPwm4Regs.CMPB.bit.CMPBHR     =0;
+                    EPwm4Regs.CMPC =0;
+                    fclVars[1].CH_B_PI_Cur.ui=0;
+                    fclVars[1].CH_B_PI_Cur.up=0;
+                    fclVars[1].CH_B_PI_Cur.v1=0;
+                    fclVars[1].CH_B_PI_Cur.i1=CH_A[1].PWMxA*0.084;
+
+               }
+               else
+               {
+                   EPwm3Regs.CMPA.bit.CMPA       = CH_A[1].PWMxA;
+                   EPwm3Regs.CMPA.bit.CMPAHR     = CH_A[1].PWMxAHR<<8;
+                   EPwm3Regs.CMPB.bit.CMPB       = CH_A[1].PWMxB;//PWM_DEADTIME
+                   EPwm3Regs.CMPB.bit.CMPBHR     =0;
+                   EPwm3Regs.CMPC =0;
+                   EPwm4Regs.CMPA.bit.CMPA       = CH_B[1].PWMxA;
+                   EPwm4Regs.CMPA.bit.CMPAHR     = CH_B[1].PWMxAHR<<8;
+                   EPwm4Regs.CMPB.bit.CMPB       = CH_B[1].PWMxB;//PWM_DEADTIME
+                   EPwm4Regs.CMPB.bit.CMPBHR     =0;
+                   EPwm4Regs.CMPC =0;
+
+               }
+           }
+           if(fclVars[1].lsw==ENC_CALIBRATION_DONE)
+           {
+
+                CH_A[1].PWMxB= (1-fclVars[1].CH_A_PI_Cur.Out) *PWM_PERIOD;
+                CH_A[1].PWMxBHR = ((float)PWM_PERIOD*(1-fclVars[1].CH_A_PI_Cur.Out)-(float)CH_A[1].PWMxB) * MEP_Scale;
+
+                //放电同步整流控制
+                SynRect_Boost(&CH_A[1]);
+
+                CH_B[1].PWMxB=(1-fclVars[1].CH_B_PI_Cur.Out)*PWM_PERIOD;
+                CH_B[1].PWMxBHR = ((float)PWM_PERIOD*(1-fclVars[1].CH_B_PI_Cur.Out)-(float)CH_B[1].PWMxB) * MEP_Scale;
+                //放电同步整流控制
+                SynRect_Boost(&CH_B[1]);
+
+                EPwm3Regs.CMPA.bit.CMPA       = CH_A[1].PWMxA;
+                EPwm3Regs.CMPA.bit.CMPAHR     = 0;
+                EPwm3Regs.CMPB.bit.CMPB       = CH_A[1].PWMxB;//PWM_DEADTIME
+                EPwm3Regs.CMPB.bit.CMPBHR     =CH_A[1].PWMxBHR<<8;
+                EPwm3Regs.CMPC =0;
+                EPwm4Regs.CMPA.bit.CMPA       = CH_B[1].PWMxA;
+                EPwm4Regs.CMPA.bit.CMPAHR     =0;
+                EPwm4Regs.CMPB.bit.CMPB       = CH_B[1].PWMxB;//PWM_DEADTIME
+                EPwm4Regs.CMPB.bit.CMPBHR     = CH_B[1].PWMxBHR ;
+                EPwm4Regs.CMPC =0;
+           }
+       }
+
+}
+
+__interrupt void Cla1Task3 ( void )
+{
+
+
+
+     ADCA_Sample.ADC4=(int16)(AdcaResultRegs.ADCRESULT4-10);
+     ADCA_Sample.ADC5=(int16)(AdcaResultRegs.ADCRESULT5-10);
+
+     ADCA_Sample.ADCA_CH_SUM4+=ADCA_Sample.ADC4-ADCA_Sample.ADCA_CH4[ADCA_Sample.resultsIndex3];
+     ADCA_Sample.ADCA_CH4[ADCA_Sample.resultsIndex3]=ADCA_Sample.ADC4;
+
+     ADCA_Sample.ADCA_CH_SUM5+=ADCA_Sample.ADC5-ADCA_Sample.ADCA_CH5[ADCA_Sample.resultsIndex3];
+     ADCA_Sample.ADCA_CH5[ADCA_Sample.resultsIndex3]=ADCA_Sample.ADC5;
+
+     ADCA_Sample.resultsIndex3++;
+     if(ADCA_Sample.resultsIndex3>4)
+     {
+            ADCA_Sample.resultsIndex3=0;
+     }
+
+     fclVars[2].CH_A_PI_Cur.Fbk=ADCA_Sample.ADCA_CH_SUM4*0.01819524440232*0.2;
+     fclVars[2].CH_B_PI_Cur.Fbk=ADCA_Sample.ADCA_CH_SUM5*0.01819524440232*0.2;
+     if(fclVars[2].Neg_Full_Flag==1)
+     {
+          fclVars[2].CH_A_PI_Cur.Fbk=-fclVars[2].CH_A_PI_Cur.Fbk;
+          if(fclVars[2].Isense_Curr<-10)
+          {
+              fclVars[2].CH_A_PI_Cur.Fbk=-10;
+          }
+     }
+   //  fclVars[2].CH_A_PI_Cur.Fbk=(int16)(AdcaResultRegs.ADCRESULT4-10)*0.01819524440232;
+   //  fclVars[2].CH_B_PI_Cur.Fbk=(int16)(AdcaResultRegs.ADCRESULT5-10)*0.01819524440232;
+
+     if(fclVars[2].lsw==ENC_ALIGNMENT)
+     {
+
+     }
+     else if((fclVars[2].lsw==ENC_WAIT_FOR_INDEX)||(fclVars[2].lsw==ENC_CALIBRATION_DONE))
+     {
+         fclVars[2].CH_A_PI_Cur.Ref=IdRef[2];
+         PI_CLA_MACRO(fclVars[2].CH_A_PI_Cur);
+         fclVars[2].CH_B_PI_Cur.Ref=IdRef[2];
+         PI_CLA_MACRO(fclVars[2].CH_B_PI_Cur);
+
+         if(fclVars[2].lsw==ENC_WAIT_FOR_INDEX)
+         {
+
+
+
+             CH_A[2].PWMxA=fclVars[2].CH_A_PI_Cur.Out *PWM_PERIOD;
+             CH_A[2].PWMxAHR = ((float)PWM_PERIOD*fclVars[2].CH_A_PI_Cur.Out-(float)CH_A[2].PWMxA) * MEP_Scale;
+
+             SynRect_Buck(&CH_A[2]);
+
+             CH_B[2].PWMxA=fclVars[2].CH_B_PI_Cur.Out *PWM_PERIOD;
+             CH_B[2].PWMxAHR = ((float)PWM_PERIOD*fclVars[2].CH_B_PI_Cur.Out-(float)CH_B[2].PWMxA) * MEP_Scale;
+
+             SynRect_Buck(&CH_B[2]);
+
+             if(fclVars[2].Empty_Full_Flag==0)
+             {
+                   EPwm5Regs.CMPA.bit.CMPA       = CH_A[2].PWMxA;
+                   EPwm5Regs.CMPA.bit.CMPAHR     = CH_A[2].PWMxAHR<<8;
+                   EPwm5Regs.CMPB.bit.CMPB       = CH_A[2].PWMxB;//PWM_DEADTIME
+                   EPwm5Regs.CMPB.bit.CMPBHR     =0;
+                   EPwm5Regs.CMPC =0;
+                   EPwm6Regs.CMPA.bit.CMPA       = CH_A[2].PWMxA;
+                   EPwm6Regs.CMPA.bit.CMPAHR     =  CH_A[2].PWMxAHR<<8;
+                   EPwm6Regs.CMPB.bit.CMPB       =  CH_A[2].PWMxB;//PWM_DEADTIME
+                   EPwm6Regs.CMPB.bit.CMPBHR     =0;
+                   EPwm6Regs.CMPC =0;
+                   fclVars[2].CH_B_PI_Cur.ui=0;
+                   fclVars[2].CH_B_PI_Cur.up=0;
+                   fclVars[2].CH_B_PI_Cur.v1=0;
+                   fclVars[2].CH_B_PI_Cur.i1=CH_A[2].PWMxA*0.084;
+
+             }
+             else
+             {
+                  EPwm5Regs.CMPA.bit.CMPA       = CH_A[2].PWMxA;
+                  EPwm5Regs.CMPA.bit.CMPAHR     = CH_A[2].PWMxAHR<<8;
+                  EPwm5Regs.CMPB.bit.CMPB       = CH_A[2].PWMxB;//PWM_DEADTIME
+                  EPwm5Regs.CMPB.bit.CMPBHR     =0;
+                  EPwm5Regs.CMPC =0;
+                  EPwm6Regs.CMPA.bit.CMPA       = CH_B[2].PWMxA;
+                  EPwm6Regs.CMPA.bit.CMPAHR     = CH_B[2].PWMxAHR<<8;
+                  EPwm6Regs.CMPB.bit.CMPB       = CH_B[2].PWMxB;//PWM_DEADTIME
+                  EPwm6Regs.CMPB.bit.CMPBHR     =0;
+                  EPwm6Regs.CMPC =0;
+
+             }
+         }
+         if(fclVars[2].lsw==ENC_CALIBRATION_DONE)
+         {
+
+              CH_A[2].PWMxB= (1-fclVars[2].CH_A_PI_Cur.Out) *PWM_PERIOD;
+              CH_A[2].PWMxBHR = ((float)PWM_PERIOD*(1-fclVars[2].CH_A_PI_Cur.Out)-(float)CH_A[2].PWMxB) * MEP_Scale;
+
+              //放电同步整流控制
+              SynRect_Boost(&CH_A[2]);
+
+              CH_B[2].PWMxB=(1-fclVars[2].CH_B_PI_Cur.Out)*PWM_PERIOD;
+              CH_B[2].PWMxBHR = ((float)PWM_PERIOD*(1-fclVars[2].CH_B_PI_Cur.Out)-(float)CH_B[2].PWMxB) *MEP_Scale;
+              //放电同步整流控制
+              SynRect_Boost(&CH_B[2]);
+
+              EPwm5Regs.CMPA.bit.CMPA       = CH_A[2].PWMxA;
+              EPwm5Regs.CMPA.bit.CMPAHR     = 0;
+              EPwm5Regs.CMPB.bit.CMPB       = CH_A[2].PWMxB;//PWM_DEADTIME
+              EPwm5Regs.CMPB.bit.CMPBHR     =CH_A[2].PWMxBHR<<8;
+              EPwm5Regs.CMPC =0;
+              EPwm6Regs.CMPA.bit.CMPA       = CH_B[2].PWMxA;
+              EPwm6Regs.CMPA.bit.CMPAHR     =0;
+              EPwm6Regs.CMPB.bit.CMPB       = CH_B[2].PWMxB;//PWM_DEADTIME
+              EPwm6Regs.CMPB.bit.CMPBHR     = CH_B[2].PWMxBHR<<8;
+              EPwm6Regs.CMPC =0;
+         }
+     }
+
+}
+
+__interrupt void Cla1Task4 ( void )
+{
+
+
+          ADCA_Sample.ADC6=(int16)(AdcaResultRegs.ADCRESULT14-10);
+          ADCA_Sample.ADC7=(int16)(AdcaResultRegs.ADCRESULT15-10);
+
+          ADCA_Sample.ADCA_CH_SUM6+=ADCA_Sample.ADC6-ADCA_Sample.ADCA_CH6[ADCA_Sample.resultsIndex4];
+          ADCA_Sample.ADCA_CH6[ADCA_Sample.resultsIndex4]=ADCA_Sample.ADC6;
+
+          ADCA_Sample.ADCA_CH_SUM7+=ADCA_Sample.ADC7-ADCA_Sample.ADCA_CH7[ADCA_Sample.resultsIndex4];
+          ADCA_Sample.ADCA_CH7[ADCA_Sample.resultsIndex4]=ADCA_Sample.ADC7;
+
+          ADCA_Sample.resultsIndex4++;
+          if(ADCA_Sample.resultsIndex4>4)
+          {
+                 ADCA_Sample.resultsIndex4=0;
+          }
+          fclVars[3].CH_A_PI_Cur.Fbk=ADCA_Sample.ADCA_CH_SUM6*0.01819524440232*0.2;
+          fclVars[3].CH_B_PI_Cur.Fbk=ADCA_Sample.ADCA_CH_SUM7*0.01819524440232*0.2;
+          if(fclVars[3].Neg_Full_Flag==1)
+          {
+                fclVars[3].CH_A_PI_Cur.Fbk=-fclVars[3].CH_A_PI_Cur.Fbk;
+                if(fclVars[3].Isense_Curr<-10)
+                {
+                    fclVars[3].CH_A_PI_Cur.Fbk=-10;
+                }
+          }
+
+    //   fclVars[3].CH_A_PI_Cur.Fbk=(int16)(AdcaResultRegs.ADCRESULT14-10)*0.01819524440232;
+     //  fclVars[3].CH_B_PI_Cur.Fbk=(int16)(AdcaResultRegs.ADCRESULT15-10)*0.01819524440232;
+
+       if(fclVars[3].lsw==ENC_ALIGNMENT)
+       {
+
+       }
+       else
+       {
+
+           fclVars[3].CH_A_PI_Cur.Ref=IdRef[3];
+           PI_CLA_MACRO(fclVars[3].CH_A_PI_Cur);
+           fclVars[3].CH_B_PI_Cur.Ref=IdRef[3];
+           PI_CLA_MACRO(fclVars[3].CH_B_PI_Cur);
+
+
+           if(fclVars[3].lsw==ENC_WAIT_FOR_INDEX)
+           {
+
+
+               CH_A[3].PWMxA=fclVars[3].CH_A_PI_Cur.Out *PWM_PERIOD;
+               CH_A[3].PWMxAHR = ((float)PWM_PERIOD*fclVars[3].CH_A_PI_Cur.Out-(float)CH_A[3].PWMxA) *MEP_Scale;
+               SynRect_Buck(&CH_A[3]);
+
+               CH_B[3].PWMxA=fclVars[3].CH_B_PI_Cur.Out *PWM_PERIOD;
+               CH_B[3].PWMxAHR = ((float)PWM_PERIOD*fclVars[3].CH_B_PI_Cur.Out-(float)CH_B[3].PWMxA) *MEP_Scale;
+
+               SynRect_Buck(&CH_B[3]);
+
+
+               if(fclVars[3].Empty_Full_Flag==0)
+               {
+                  EPwm7Regs.CMPA.bit.CMPA       = CH_A[3].PWMxA;
+                  EPwm7Regs.CMPA.bit.CMPAHR     = CH_A[3].PWMxAHR<<8;
+                  EPwm7Regs.CMPB.bit.CMPB       = CH_A[3].PWMxB;//PWM_DEADTIME
+                  EPwm7Regs.CMPB.bit.CMPBHR     =0;
+                  EPwm7Regs.CMPC =0;
+                  EPwm8Regs.CMPA.bit.CMPA       = CH_A[3].PWMxA;
+                  EPwm8Regs.CMPA.bit.CMPAHR     =  CH_A[3].PWMxAHR<<8;
+                  EPwm8Regs.CMPB.bit.CMPB       =  CH_A[3].PWMxB;//PWM_DEADTIME
+                  EPwm8Regs.CMPB.bit.CMPBHR     =0;
+                  EPwm8Regs.CMPC =0;
+                  fclVars[3].CH_B_PI_Cur.ui=0;
+                  fclVars[3].CH_B_PI_Cur.up=0;
+                  fclVars[3].CH_B_PI_Cur.v1=0;
+                  fclVars[3].CH_B_PI_Cur.i1=CH_A[3].PWMxA*0.084;
+
+               }
+               else
+               {
+                 EPwm7Regs.CMPA.bit.CMPA       = CH_A[3].PWMxA;
+                 EPwm7Regs.CMPA.bit.CMPAHR     = CH_A[3].PWMxAHR<<8;
+                 EPwm7Regs.CMPB.bit.CMPB       = CH_A[3].PWMxB;//PWM_DEADTIME
+                 EPwm7Regs.CMPB.bit.CMPBHR     =0;
+                 EPwm7Regs.CMPC =0;
+                 EPwm8Regs.CMPA.bit.CMPA       = CH_B[3].PWMxA;
+                 EPwm8Regs.CMPA.bit.CMPAHR     = CH_B[3].PWMxAHR<<8;
+                 EPwm8Regs.CMPB.bit.CMPB       = CH_B[3].PWMxB;//PWM_DEADTIME
+                 EPwm8Regs.CMPB.bit.CMPBHR     =0;
+                 EPwm8Regs.CMPC =0;
+               }
+           }
+           if(fclVars[3].lsw==ENC_CALIBRATION_DONE)
+           {
+
+                CH_A[3].PWMxB= (1-fclVars[3].CH_A_PI_Cur.Out) *PWM_PERIOD;
+                CH_A[3].PWMxBHR = ((float)PWM_PERIOD*(1-fclVars[3].CH_A_PI_Cur.Out)-(float)CH_A[3].PWMxB) * MEP_Scale;
+
+                //放电同步整流控制
+                SynRect_Boost(&CH_A[3]);
+
+                CH_B[3].PWMxB=(1-fclVars[3].CH_B_PI_Cur.Out)*PWM_PERIOD;
+                CH_B[3].PWMxBHR = ((float)PWM_PERIOD*(1-fclVars[3].CH_B_PI_Cur.Out)-(float)CH_B[3].PWMxB) * MEP_Scale;
+                //放电同步整流控制
+                SynRect_Boost(&CH_B[3]);
+
+                EPwm7Regs.CMPA.bit.CMPA       = CH_A[3].PWMxA;
+                EPwm7Regs.CMPA.bit.CMPAHR     = 0;
+                EPwm7Regs.CMPB.bit.CMPB       = CH_A[3].PWMxB;//PWM_DEADTIME
+                EPwm7Regs.CMPB.bit.CMPBHR     =CH_A[3].PWMxBHR<<8;
+                EPwm7Regs.CMPC =0;
+                EPwm8Regs.CMPA.bit.CMPA       = CH_B[3].PWMxA;
+                EPwm8Regs.CMPA.bit.CMPAHR     =0;
+                EPwm8Regs.CMPB.bit.CMPB       = CH_B[3].PWMxB;//PWM_DEADTIME
+                EPwm8Regs.CMPB.bit.CMPBHR     = CH_B[3].PWMxBHR ;
+                EPwm8Regs.CMPC =0;
+           }
+       }
+
+
+}
+
+__interrupt void Cla1Task5 ( void )
+{
+
+}
+
+__interrupt void Cla1Task6 ( void )
+{
+
+}
+
+__interrupt void Cla1Task7 ( void )
+{
+
+}
+
+__interrupt void Cla1Task8 ( void )
+{
+  //  fResult2 = __sqrt(fVal2);
+      PI_CLA_INIT(pi_id)
+      pwm1.PeriodMax=1000;
+      pi_id.Kp=(1.0);
+      pi_id.Ki=(0.1);
+      pi_id.Umax =(0.2);
+      pi_id.Umin =(-0.2);
+}
+
+//
+// End of file
+//

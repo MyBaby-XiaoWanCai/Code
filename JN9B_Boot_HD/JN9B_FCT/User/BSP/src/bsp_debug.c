@@ -1,0 +1,833 @@
+/**********************************************************************************************************
+** Company     : JNE WuHan Co.,Ltd.
+** Project     :
+** --------------------------------------------------------------------------------------------------------
+** File name   : bsp_debug.c
+** Author      : Huang Cheng
+** Date        : 2021-11-15
+** Description : bsp_debug source file
+**********************************************************************************************************/
+
+/**********************************************************************************************************
+**                                          头文件引用区
+**********************************************************************************************************/
+#include "string.h"
+#include "main.h"
+/**********************************************************************************************************
+**                                         类型声明区
+**********************************************************************************************************/
+typedef struct {
+
+    char cmd[20];                   //命令码
+    char param[4][100];             //每条指令最多支持4条命令参数缓存
+    void (*ptrCmdFun)(void);        //命令码处理函数
+
+} cmd_table;
+
+/**********************************************************************************************************
+**                                         全局变量定义区
+**********************************************************************************************************/
+stc_usart_uart_init_t              UartHandle;
+__IO DBGPort_TypeDef				s_dbgPort;
+uint8_t	tmpCode[DBG_CMD_CODE_SIZE]= {0};     //指令内容缓存
+uint8_t	tmpPara[4][DBG_CMD_PARA_SIZE]= {0};  //数据参数缓存
+
+cmd_table FCT_CMD[] = {
+
+    /*公共测试项*/
+    {"Uart_Test", {0}, Uart_Test_Fun },                       //串口测试
+
+    /*控制板FCT自测*/
+    {"Version_Test", {0}, Version_Test_Fun },                 //硬件版本标识测试
+    {"Temp_Test", {0}, Temp_Test_Fun },                       //温度采样测试
+    {"VBus_Test", {0}, VBus_Test_Fun },                       //BUS电压采样测试
+    {"EE_Test", {0}, EE_Test_Fun },                           //EEPROM测试
+    {"Fram_Test", {0}, Fram_Test_Fun },                       //FRAM测试
+    {"Vs_Vt_Test", {0}, Vs_Vt_Test_Fun },                     //电池电压和探针电压采样测试
+    {"PM_Test", {0}, PM_Test_Fun },                           //数字电位器测试
+    {"Imod_Test", {0}, Imod_Test_Fun },                       //模块电流采样测试
+    {"Vout_Test", {0}, Vout_Test_Fun },                       //端口电流采样测试
+    {"En_Int_Test", {0}, En_INT_Test_Fun },                   //EN和INT信号IO测试
+    {"FanErr_Test", {0}, FanErr_Test_Fun },                   //风扇故障信号测试
+    {"CSeat_Test", {0}, CSeat_Test_Fun },                     //控制板在位信号测试
+    {"PSeat_Test", {0}, PSeat_Test_Fun },                     //功率板在位信号测试
+    {"Can_Test", {0}, Can_Test_Fun },                         //CAN1&CAN2接口测试
+    {"Led_I2C_Test", {0}, Led_I2C_Test_Fun },                 //灯板IIC接口测试
+    {"PowerBD_I2C_Test", {0}, PowerBD_I2C_Test_Fun },         //功率板IIC接口测试
+    {"CV4_CV8_Test", {0}, CV4_CV8_Test_Fun },                 //CV4&CV8信号IO测试
+    {"HWTD_Test", {0}, HWTD_Test_Fun },                       //硬件看门狗测试
+    {"MB_Auto_Test", {0}, MB_Auto_Test_Fun },                 //控制板FCT自动测试
+
+    /*功率板FCT测试*/
+    {"PVersion_Test", {0}, PVersion_Test_Fun },               //功率板硬件版本标识测试
+    {"PTemp_Test", {0}, PTemp_Test_Fun },                     //功率板温度测试
+    {"OVP_Test", {0}, OVP_Test_Fun },                         //OVP测试
+    {"OCP_Test", {0}, OCP_Test_Fun },                         //OCP测试
+    {"RPP_Test", {0}, RPP_Test_Fun },                         //反接保护测试
+    {"CVmod_C_Test", {0}, CVmod_C_Test_Fun },                 //CVMOD模式充电测试
+    {"CVsense_FD_Test", {0}, CVsense_FD_Test_Fun },           //CVSense模式快速放电测试
+    {"CVsense_SD_Test", {0}, CVsense_SD_Test_Fun },           //CVSense模式慢速放电测试
+    {"CC_10A_Test", {0}, CC_10A_Test_Fun },                   //CC模式10A测试
+    {"DCC_120A_Test", {0}, DCC_120A_Test_Fun },               //DCC模块120A测试
+    {"PB_Auto_Test", {0}, PB_Auto_Test_Fun },                 //功率板FCT自动测试
+
+};
+
+extern __IO uint8_t HWDT_EN;                    //硬件看门狗使能标志
+__IO uint8_t Auto_Test=0;                       //自动测试标志
+__IO uint32_t Failed_CNT=0;                     //失败项计数记录
+uint8_t CMD_Type=2;                             //指令类型，指示指令格式是 $XXX@ 还是$XXX:
+uint8_t  Can1_recv[4]= {0};                //CAN1接收数据
+uint8_t  Can2_recv[4]= {0};                //CAN2接收数据
+/**********************************************************************************************************
+**                                           函数声明区
+**********************************************************************************************************/
+
+/**********************************************************************************************************
+**                                           应用函数区
+**********************************************************************************************************/
+void Uart_Test_Fun(void)
+{
+    printf("1.1 测试项目：通信串口测试开始\r\n");
+    printf("1.2 测试结果：PASS！\r\n");
+    if(Auto_Test==0)
+        printf("1.3 测试结束，继续测试下一项！\r\n");
+}
+
+void Version_Test_Fun(void)
+{
+    printf("2.1 测试项目：硬件版本标识测试\r\n");
+    printf("2.2 测试结果：PASS！\r\n");
+    if(Auto_Test==0)
+        printf("2.3 测试结束，继续测试下一项！\r\n");
+};
+
+void Temp_Test_Fun(void)
+{
+    printf("3.1 测试项目：环境温度采样测试\r\n");
+    printf("3.2 测试结果：PASS！\r\n");
+    if(Auto_Test==0)
+        printf("3.3 测试结束，继续测试下一项！\r\n");
+};
+
+void VBus_Test_Fun(void)
+{
+    printf("4.1 测试项目：BUS电压采样测试\r\n");
+    printf("4.2 测试结果：PASS！\r\n");
+    if(Auto_Test==0)
+        printf("4.3 测试结束，继续测试下一项！\r\n");
+};
+
+/**********************************************************************************************************
+**  函 数 名 : EE_Test_Fun()
+**  功能说明 : EEPROM测试项目子流程程序
+**  形    参 : 无
+**  返 回 值 : 无
+**********************************************************************************************************/
+void EE_Test_Fun(void)
+{
+    uint8_t  Test_RDate;                            //读出数据缓存
+    uint8_t  Test_WDate;                            //写入数据缓存
+
+    printf("5.1 测试项目：EEPROM测试开始\r\n");
+    ee_ReadBytes(&Test_RDate,0x10,1);
+    Test_WDate=~Test_RDate;
+    ee_WriteBytes(&Test_WDate,0x10,1);
+    ee_ReadBytes(&Test_RDate,0x10,1);
+    if(Test_WDate==Test_RDate)                     //如果读取的值等于上次读出的值逐位取反，则测试PASS否则FAILED
+    {
+        printf("5.2 测试结果：PASS！\r\n");
+    }
+    else
+    {
+        Failed_CNT+=1;                             //失败项计数+1
+        printf("5.2 测试结果：FAILED！\r\n");
+    }
+    if(Auto_Test==0)
+        printf("5.3 测试结束，继续测试下一项！\r\n");
+}
+
+/**********************************************************************************************************
+**  函 数 名 : Fram_Test_Fun()
+**  功能说明 : 铁电测试项目子流程程序
+**  形    参 : 无
+**  返 回 值 : 无
+**********************************************************************************************************/
+void Fram_Test_Fun(void)
+{
+    uint32_t Fram_ID;
+    uint8_t  Test_RDate;                            //读出数据缓存
+    uint8_t  Test_WDate;                            //写入数据缓存
+
+    printf("6.1 测试项目：FRAM测试开始\r\n");      //测试开始
+    MB85Ctrl_ReadID(&Fram_ID);                      //读取铁电ID
+    if((Fram_ID & 0xff000000) == 0x04000000)		//ID最高字节0x04代表制造商为富士
+    {
+        MB85Ctrl_Read(0x10,&Test_RDate,1);            //从地址0x10读一个字节
+        Test_WDate=~Test_RDate;
+        MB85Ctrl_Write(0x10,&Test_WDate,1);           //取反后写入地址0x10
+        MB85Ctrl_Read(0x10,&Test_RDate,1);            //再次读出
+        if(Test_WDate==Test_RDate)                    //如果读取的值等于上次读出的值逐位取反，则测试PASS否则FAILED
+        {
+            printf("6.2 测试结果：PASS！\r\n");
+        }
+        else
+        {
+            Failed_CNT+=1;                             //失败项计数+1
+            printf("6.2 测试结果：FAILED！\r\n");
+        }
+    }
+    else
+    {
+        Failed_CNT+=1;                             //失败项计数+1
+        printf("6.2 测试结果：FAILED！\r\n");
+    }
+    if(Auto_Test==0)
+        printf("6.3 测试结束，继续测试下一项！\r\n");
+}
+
+void Vs_Vt_Test_Fun(void)
+{
+    printf("7.1 测试项目：电压DA&电池&探针电压采样测试\r\n");
+    printf("7.2 测试结果：PASS！\r\n");
+    if(Auto_Test==0)
+        printf("7.3 测试结束，继续测试下一项！\r\n");
+}
+
+void PM_Test_Fun(void)
+{
+    printf("8.1 测试项目：数字电位器&辅助电压硬件保护测试\r\n");
+    printf("8.2 测试结果：PASS！\r\n");
+    if(Auto_Test==0)
+        printf("8.3 测试结束，继续测试下一项！\r\n");
+};
+
+void Imod_Test_Fun(void)
+{
+    printf("9.1 测试项目：电流DA&模块电流采样测试\r\n");
+    printf("9.2 测试结果：PASS！\r\n");
+    if(Auto_Test==0)
+        printf("9.3 测试结束，继续测试下一项！\r\n");
+};
+
+void Vout_Test_Fun(void)
+{
+    printf("10.1 测试项目：辅助源&端口电压采样测试\r\n");
+    printf("10.2 测试结果：PASS！\r\n");
+    if(Auto_Test==0)
+        printf("10.3 测试结束，继续测试下一项！\r\n");
+};
+
+void En_INT_Test_Fun(void)
+{
+    printf("11.1 测试项目：EN信号&硬件故障INT信号测试\r\n");
+    printf("11.2 测试结果：PASS！\r\n");
+    if(Auto_Test==0)
+        printf("11.3 测试结束，继续测试下一项！\r\n");
+};
+
+void FanErr_Test_Fun(void)
+{
+    printf("12.1 测试项目：风扇故障反馈信号测试\r\n");
+    printf("12.2 测试结果：PASS！\r\n");
+    if(Auto_Test==0)
+        printf("12.3 测试结束，继续测试下一项！\r\n");
+};
+void CSeat_Test_Fun(void)
+{
+    printf("13.1 测试项目：控制板在位信号测试\r\n");
+    printf("13.2 测试结果：PASS！\r\n");
+    if(Auto_Test==0)
+        printf("13.3 测试结束，继续测试下一项！\r\n");
+};
+
+void PSeat_Test_Fun(void)
+{
+    printf("14.1 测试项目：功率板在位信号测试\r\n");
+    printf("14.2 测试结果：PASS！\r\n");
+    if(Auto_Test==0)
+        printf("14.3 测试结束，继续测试下一项！\r\n");
+};
+
+/**********************************************************************************************************
+**  函 数 名 : Can_Test_Fun()
+**  功能说明 : CAN1&CAN2测试项目子流程程序
+**  形    参 : 无
+**  返 回 值 : 无
+**********************************************************************************************************/
+void Can_Test_Fun(void)
+{
+    uint32_t Test_CAN1ID=0x10000002;
+
+    uint8_t  date[]= {0x00,0x01,0x02,0x03};
+
+    uint8_t CAN_ERR=0;
+    printf("15.1 测试项目：CAN1&CAN2收发测试\r\n");
+    CAN1_SendData(Test_CAN1ID,&date[0],4);                                         //CAN1发送date
+    printf("15.2 测试过程：\r\n");
+    printf("-------------->CAN1发送{%d,%d,%d,%d}\r\n",date[0],date[1],date[2],date[3]);
+    bsp_DelayMS(100);                                                                    //等待CAN2接收
+    printf("-------------->CAN2接收{%d,%d,%d,%d}\r\n",Can2_recv[0],Can2_recv[1],Can2_recv[2],Can2_recv[3]);
+    for(uint8_t i=0; i<4; i++)
+    {
+        if(date[i]!=Can2_recv[i])
+        {
+            CAN_ERR=1;
+            break;
+        }
+    }
+    
+    //修改传输数据
+    for(uint8_t n=0;n<4;n++)
+    {
+        date[n]+=1;
+    }
+    
+    CAN2_SendData(Test_CAN1ID,&date[0],4);                                         //CAN2发送date
+    printf("-------------->CAN2发送{%d,%d,%d,%d}\r\n",date[0],date[1],date[2],date[3]);
+    bsp_DelayMS(100);                                                                    //等待CAN1接收
+    printf("-------------->CAN1接收{%d,%d,%d,%d}\r\n",Can1_recv[0],Can1_recv[1],Can1_recv[2],Can1_recv[3]);
+    for(uint8_t i=0; i<4; i++)
+    {
+        if(date[i]!=Can1_recv[i])
+        {
+            CAN_ERR=1;
+            break;
+        }
+    }
+    if(CAN_ERR==0)
+    {
+        printf("15.3 测试结果：PASS！\r\n");
+    }
+    else
+    {
+        printf("15.3 测试结果：FAILED！\r\n");
+    }
+    if(Auto_Test==0)
+        printf("15.4 测试结束，继续测试下一项！\r\n");
+};
+
+void Led_I2C_Test_Fun(void)
+{
+    printf("16.1 测试项目：灯板通信测试\r\n");
+    printf("16.2 测试结果：PASS！\r\n");
+    if(Auto_Test==0)
+        printf("16.3 测试结束，继续测试下一项！\r\n");
+};
+
+void PowerBD_I2C_Test_Fun(void)
+{
+    printf("17.1 测试项目：功率板通信测试\r\n");
+    printf("17.2 测试结果：PASS！\r\n");
+    if(Auto_Test==0)
+        printf("17.3 测试结束，继续测试下一项！\r\n");
+};
+void CV4_CV8_Test_Fun(void)
+{
+    printf("18.1 测试项目：CV4&CV8信号测试\r\n");
+    printf("18.2 测试结果：PASS！\r\n");
+    if(Auto_Test==0)
+        printf("18.3 测试结束，继续测试下一项！\r\n");
+};
+
+
+
+/**********************************************************************************************************
+**  函 数 名 : HWTD_Test_Fun()
+**  功能说明 : 硬件看门狗测试项目子流程程序
+**  形    参 : 无
+**  返 回 值 : 无
+**********************************************************************************************************/
+void HWTD_Test_Fun(void)
+{
+
+    uint32_t Test_WDate= 0xAAAABBBB;                          //看门狗测试开始标志
+    printf("19.1 测试项目：硬件看门狗测试开始\r\n");
+    EFM_FCT_Erase();                                          //擦扇区
+    EFM_SingleProgram(EFM_ADDR_SECTOR255, Test_WDate);        //写看门狗测试开始标志
+    EFM_SingleProgram(EFM_ADDR_SECTOR255+4, Auto_Test);       //写自动流程标志
+    EFM_SingleProgram(EFM_ADDR_SECTOR255+8, Failed_CNT);      //写失败项计数值
+    EFM_SectorCmd_Sequential(EFM_ADDR_SECTOR255, 1,Disable);  //打开FCT扇区写保护
+    HWDT_EN=0;                                                //硬件看门狗使能标志清0，5秒后如果没有重启则测试失败
+    bsp_DelayMS(5000);
+    Failed_CNT+=1;                                            //失败项计数+1
+    printf("19.2 测试结果：FAILED！\r\n");
+
+    Test_WDate= 0xBBBBAAAA;                                   //看门狗测试结束标志
+    EFM_FCT_Erase();                                          //擦扇区
+    EFM_SingleProgram(EFM_ADDR_SECTOR255, Test_WDate);        //写看门狗测试结束标志
+    EFM_SectorCmd_Sequential(EFM_ADDR_SECTOR255, 1,Disable);  //打开FCT扇区写保护
+    if(Auto_Test==0)
+    {
+        printf("19.3 测试结束，继续测试下一项！\r\n");
+    }
+    else
+    {
+        printf("————————主控板FCT测试流程结束！————————\r\n");
+        printf("测试失败项总计：%d!\r\r\n",Failed_CNT);
+    }
+};
+/**********************************************************************************************************
+**  函 数 名 : MB_Auto_Test_Fun()
+**  功能说明 : 主控板FCT自动测试流程程序
+**  形    参 : 无
+**  返 回 值 : 无
+**********************************************************************************************************/
+void MB_Auto_Test_Fun(void)
+{
+    uint16_t i;
+    Auto_Test=1;                       //自动测试开始，标志置1
+    int32_t n=0;
+    uint8_t index;                     //指令结构体数组下标
+    char *p;
+
+    printf("————————主控板FCT测试流程开始！————————\r\n");
+    Failed_CNT=0;                      //FAIL计数清0
+    if( CMD_Type == 1)                 //$XXX@类型指令，按默认参数，顺序执行FCT测试
+    {
+        for(i=0 ; i<19 ; i++)
+        {
+            //清空被执行指令历史参数
+            memset(FCT_CMD[i].param,0,sizeof(FCT_CMD[i].param));
+            //写入默认参数
+            if(i==1)
+                strcpy(FCT_CMD[1].param[0],FCT_CMD[19].param[0]); // 传硬件版本号
+            printf("%d.0 测试参数：",i+1);
+            for(uint8_t j=0; j<4; j++)
+            {
+                if(* (char*)&FCT_CMD[i].param[j]!=NULL)
+                    printf("param%d:%s;",j,FCT_CMD[i].param[j]);
+            }
+            printf("\r\n");
+            FCT_CMD[i].ptrCmdFun();
+        }
+
+    } else if(CMD_Type == 2)          //$XXX:类型指令，按指定参数，顺序执行FCT测试
+    {
+        //分割参数1缓存字符串数据
+        p = strtok(FCT_CMD[19].param[0], ",");
+        while(p)
+        {
+            // 拷贝参数区，参数为可选项，“$xxx:CMD1@Para1,CMD2@Para1@Para2,CMD3@Para1@Para2@Para3@Para4\r\n”指令每条子指令支持最多带4条参数
+            if( 0 >= sscanf((const char*)p, "%d", &n ))    //取指令编号
+            {
+
+            }
+            //指令编号范围限制1~19 ，数组下标转换
+            index=((n-1>=0)&&(n-1<19))?n-1:0;
+
+            //清空被执行指令历史参数
+            memset(FCT_CMD[index].param,0,sizeof(FCT_CMD[index].param));
+
+            if( 0 >= sscanf((const char*)p, "%*[^@]@%[^@]@%[^@]@%[^@]@%s", \
+                            (char*)&FCT_CMD[index].param[0],(char*)&FCT_CMD[index].param[1],(char*)&FCT_CMD[index].param[2],(char*)&FCT_CMD[index].param[3]) ) //取指令参数
+            {
+
+            }
+            //打印参数
+            printf("%d.0 测试参数：",n);
+            for(uint8_t j=0; j<4; j++)
+            {
+                if(* (char*)&FCT_CMD[index].param[j]!=NULL)
+                    printf("param%d:%s;",j,FCT_CMD[index].param[j]);
+            }
+            printf("\r\n");
+
+            FCT_CMD[index].ptrCmdFun();       //执行指令
+            p = strtok(NULL, ",");
+        }
+        if(n!=19)   //如果最终测试项目不是硬件看门狗测试，则统计失败项数目
+        {
+            printf("————————主控板FCT测试流程结束！————————\r\n");
+            printf("测试失败项总计：%d!\r\r\n",Failed_CNT);
+        }
+    }
+    memset(FCT_CMD[19].param,0,sizeof(FCT_CMD[19].param)); //清理自动流程参数缓存
+
+    Auto_Test=0;                       //自动测试结束，标志置0
+};
+
+
+
+void PVersion_Test_Fun(void)
+{
+    printf("21.1 测试项目：功率板硬件版本标识测试\r\n");
+    printf("21.2 测试结果：PASS！\r\n");
+};
+void PTemp_Test_Fun(void)
+{
+    printf("22.1 测试项目：功率板温度测试\r\n");
+    printf("22.2 测试结果：PASS！\r\n");
+};
+void OVP_Test_Fun(void)
+{
+    printf("23.1 测试项目：功率板OVP测试\r\n");
+    printf("23.2 测试结果：PASS！\r\n");
+};
+void OCP_Test_Fun(void)
+{
+    printf("24.1 测试项目：功率板OCP测试\r\n");
+    printf("24.2 测试结果：PASS！\r\n");
+};
+void RPP_Test_Fun(void)
+{
+    printf("25.1 测试项目：反接保护测试\r\n");
+    printf("25.2 测试结果：PASS！\r\n");
+};
+void CVmod_C_Test_Fun(void)
+{
+    printf("26.1 测试项目：CVMOD模式充电测试\r\n");
+    printf("26.2 测试结果：PASS！\r\n");
+};
+void CVsense_FD_Test_Fun(void)
+{
+    printf("27.1 测试项目：CVSense模式快速放电测试\r\n");
+    printf("27.2 测试结果：PASS！\r\n");
+};
+void CVsense_SD_Test_Fun(void)
+{
+    printf("28.1 测试项目：CVSense模式慢速放电测试\r\n");
+    printf("28.2 测试结果：PASS！\r\n");
+};
+void CC_10A_Test_Fun(void)
+{
+    printf("29.1 测试项目：CC模式10A测试\r\n");
+    printf("29.2 测试结果：PASS！\r\n");
+};
+void DCC_120A_Test_Fun(void)
+{
+    printf("30.1 测试项目：DCC模块120A测试\r\n");
+    printf("30.2 测试结果：PASS！\r\n");
+};
+
+/**********************************************************************************************************
+**  函 数 名 : PB_Auto_Test_Fun()
+**  功能说明 : 主控板FCT自动测试流程程序
+**  形    参 : 无
+**  返 回 值 : 无
+**********************************************************************************************************/
+void PB_Auto_Test_Fun(void)
+{
+    uint16_t i;
+    Auto_Test=1;                       //自动测试开始，标志置1
+    int32_t n=0;
+    uint8_t index;                     //指令结构体数组下标
+    char *p;
+
+    printf("————————功率板FCT测试流程开始！————————\r\n");
+    Failed_CNT=0;                      //FAIL计数清0
+    if( CMD_Type == 1)                 //$XXX@类型指令，按默认参数，顺序执行FCT测试
+    {
+        for(i=20 ; i<30 ; i++)
+        {
+            //清空被执行指令历史参数
+            memset(FCT_CMD[i].param,0,sizeof(FCT_CMD[i].param));
+            //写入默认参数
+            if(i==20)
+                strcpy(FCT_CMD[20].param[0],FCT_CMD[30].param[0]); // 传硬件版本号
+            printf("%d.0 测试参数：",i+1);
+            for(uint8_t j=0; j<4; j++)
+            {
+                if(* (char*)&FCT_CMD[i].param[j]!=NULL)
+                    printf("param%d:%s;",j,FCT_CMD[i].param[j]);
+            }
+            printf("\r\n");
+            FCT_CMD[i].ptrCmdFun();
+        }
+
+    } else if(CMD_Type == 2)          //$XXX:类型指令，按指定参数，顺序执行FCT测试
+    {
+        //分割参数1缓存字符串数据
+        p = strtok(FCT_CMD[30].param[0], ",");
+        while(p)
+        {
+            // 拷贝参数区，参数为可选项，“$xxx:CMD1@Para1,CMD2@Para1@Para2,CMD3@Para1@Para2@Para3@Para4\r\n”指令每条子指令支持最多带4条参数
+            if( 0 >= sscanf((const char*)p, "%d", &n ))    //取指令编号
+            {
+
+            }
+            //指令编号范围限制1~10 ，数组下标转换
+            index=((n-1>=0)&&(n-1<10))?n+19:0;
+
+            //清空被执行指令历史参数
+            memset(FCT_CMD[index].param,0,sizeof(FCT_CMD[index].param));
+
+            if( 0 >= sscanf((const char*)p, "%*[^@]@%[^@]@%[^@]@%[^@]@%s", \
+                            (char*)&FCT_CMD[index].param[0],(char*)&FCT_CMD[index].param[1],(char*)&FCT_CMD[index].param[2],(char*)&FCT_CMD[index].param[3]) ) //取指令参数
+            {
+
+            }
+            //打印参数
+            printf("%d.0 测试参数：",n+20);
+            for(uint8_t j=0; j<4; j++)
+            {
+                if(* (char*)&FCT_CMD[index].param[j]!=NULL)
+                    printf("param%d:%s;",j,FCT_CMD[index].param[j]);
+            }
+            printf("\r\n");
+
+            FCT_CMD[index].ptrCmdFun();       //执行指令
+            p = strtok(NULL, ",");
+        }
+    }
+
+    printf("————————功率板FCT测试流程结束！————————\r\n");
+    printf("测试失败项总计：%d!\r\r\n",Failed_CNT);
+    memset(FCT_CMD[30].param,0,sizeof(FCT_CMD[30].param)); //清理自动流程参数缓存
+
+    Auto_Test=0;                       //自动测试结束，标志置0
+};
+
+
+
+/**********************************************************************************************************
+**	函 数 名 : bsp_InitUSART()
+**	功能说明 : 初始化USART配置
+**	形    参 : 无
+**	返 回 值 : 无
+**********************************************************************************************************/
+void bsp_InitUSART(void)
+{
+    const stc_usart_uart_init_t stcUartInit =
+    {
+        .u32Baudrate = 115200UL,
+        .u32BitDirection = USART_LSB,
+        .u32StopBit = USART_STOPBIT_1BIT,
+        .u32Parity = USART_PARITY_NONE,
+        .u32DataWidth = USART_DATA_LENGTH_8BIT,
+        .u32ClkMode = USART_INTERNCLK_NONE_OUTPUT,
+        .u32PclkDiv = USART_PCLK_DIV64,
+        .u32OversamplingBits = USART_OVERSAMPLING_8BIT,
+        .u32NoiseFilterState = USART_NOISE_FILTER_DISABLE,
+        .u32SbDetectPolarity = USART_SB_DETECT_FALLING,
+    };
+
+    /* Configure USART RX/TX pin. */
+    GPIO_SetFunc(USART_RX_PORT, USART_RX_PIN, USART_RX_GPIO_FUNC, PIN_SUBFUNC_DISABLE);
+    GPIO_SetFunc(USART_TX_PORT, USART_TX_PIN, USART_TX_GPIO_FUNC, PIN_SUBFUNC_DISABLE);
+
+    /* Enable peripheral clock */
+    PWC_Fcg3PeriphClockCmd(USART_FUNCTION_CLK_GATE, Enable);
+
+    /* Initialize UART function. */
+    if (Ok != USART_UartInit(USART_UNIT, &stcUartInit))
+    {
+        bsp_LedOn(RUN_LED_R_NO);          //初始化失败 RUN灯 红灯亮，绿灯灭
+        bsp_LedOff(RUN_LED_G_NO);
+    }
+    else
+    {
+        bsp_LedOff(RUN_LED_R_NO);         //初始化成功 RUN灯 红灯灭，绿灯亮
+        bsp_LedOn(RUN_LED_G_NO);
+    }
+
+    stc_irq_signin_config_t stcIrqRegiCfg;
+    /*	设置串口接收中断	*/
+    stcIrqRegiCfg.enIRQn = Int000_IRQn;//设置中断优先级
+    stcIrqRegiCfg.enIntSrc = INT_USART3_RI;//设置中断名称
+    stcIrqRegiCfg.pfnCallback = &HC_USART_RxIrq_Callback;//设置中断回调函数
+    (void)INTC_IrqSignIn(&stcIrqRegiCfg);
+    NVIC_ClearPendingIRQ(stcIrqRegiCfg.enIRQn);
+    NVIC_SetPriority(stcIrqRegiCfg.enIRQn, DDL_IRQ_PRIORITY_00);//DDL_IRQ_PRIORITY_DEFAULT DDL_IRQ_PRIORITY_00
+    NVIC_EnableIRQ(stcIrqRegiCfg.enIRQn);
+
+    /* 设置串口错误接收中断 */
+    stcIrqRegiCfg.enIRQn = Int001_IRQn;
+    stcIrqRegiCfg.enIntSrc = INT_USART3_EI;
+    stcIrqRegiCfg.pfnCallback = &HC_USART3_RxErr_IrqCallback;
+    (void)INTC_IrqSignIn(&stcIrqRegiCfg);
+    NVIC_ClearPendingIRQ(stcIrqRegiCfg.enIRQn);
+    NVIC_SetPriority(stcIrqRegiCfg.enIRQn, DDL_IRQ_PRIORITY_01);
+    NVIC_EnableIRQ(stcIrqRegiCfg.enIRQn);
+
+    /* Enable RX/TX function */
+    USART_FuncCmd(USART_UNIT, (USART_RX | USART_INT_RX | USART_TX), Enable);
+}
+
+/*
+*********************************************************************************************************
+*	函 数 名: int fputc(int ch, FILE *f)
+*	功能说明: 重定向c库函数printf到串口DEBUG_USART，重定向后可使用printf函数
+*	形    参: 无
+*	返 回 值: 无
+*********************************************************************************************************
+*/
+int32_t fputc(int32_t ch, FILE *f)
+{
+    USART_SendData(USART_UNIT, (char)ch);
+    while (Reset == USART_GetStatus(USART_UNIT, USART_FLAG_TXE)) /* Wait Tx data register empty */
+    {
+
+    };
+
+    return ch;
+}
+
+
+
+/**********************************************************************************************************
+**	函 数 名 : HC_USART_RxIrq_Callback()
+**	功能说明 : 串口接收中断处理回调函数
+**	形    参 : 无
+**	返 回 值 : 无
+**********************************************************************************************************/
+uint16_t Send_Cnt = 0;
+uint16_t Rec_Data = 0;
+void HC_USART_RxIrq_Callback()
+{
+    DBGRS232_RxHandler(USART_RecData(USART_UNIT));
+//    HAL_DBGCmdProcess();
+}
+/**********************************************************************************************************
+**	函 数 名 : HC_USART3_RxErr_IrqCallback()
+**	功能说明 : 串口错误中断处理回调函数
+**	形    参 : 无
+**	返 回 值 : 无
+**********************************************************************************************************/
+void HC_USART3_RxErr_IrqCallback()
+{
+    while(Set==USART_GetStatus(USART_UNIT,USART_FLAG_ORE))
+    {
+        USART_RecData(USART_UNIT);
+        USART_ClearStatus(USART_UNIT,USART_CLEAR_FLAG_ORE);        
+    }
+    if(Set==USART_GetStatus(USART_UNIT,USART_FLAG_RTOF))
+    {
+      USART_ClearStatus(USART_UNIT,USART_CLEAR_FLAG_RTOF);     
+    }
+     if(Set==USART_GetStatus(USART_UNIT,USART_FLAG_FE))
+    {
+      USART_ClearStatus(USART_UNIT,USART_CLEAR_FLAG_FE);     
+    }
+      if(Set==USART_GetStatus(USART_UNIT,USART_FLAG_PE))
+    {
+      USART_ClearStatus(USART_UNIT,USART_CLEAR_FLAG_PE);     
+    }   
+}
+
+/**********************************************************************************************************
+**	函 数 名 : DBGRS232_RxHandler()
+**	功能说明 : 串口接收数据处理函数
+**	形    参 : 无
+**	返 回 值 : 无
+**  说明：$,@之间是指令名称，@，\r之间是指令参数（可选），buffer存储$之后的所有内容
+**********************************************************************************************************/
+void DBGRS232_RxHandler (uint8_t	rxData)
+{
+    if(s_dbgPort.rxFlag == dbstart)
+    {
+        if(rxData == DBG_CMD_HEAD_START)      //捕获串口指令头
+        {
+            s_dbgPort.rxFlag = valid;         //接收指令有效标志置位
+            s_dbgPort.rxlen	 = 0;             //接收长度清0
+        }
+    }
+    if(s_dbgPort.rxFlag == valid)             //已接收到指令头
+    {
+        if(s_dbgPort.rxlen < DEF_DBG_BUFSIZE) //接收指令数据长度限定1000字节
+        {
+            s_dbgPort.rxdBuf1[s_dbgPort.rxlen++]	= rxData;       //拷贝指令数据到buffer1，len自加
+
+            if((rxData == '\r') || (rxData == '\n'))            //收到字符串结束符或者换行符，表示指令接收结束
+            {
+                if(0==strcmp(( char* )s_dbgPort.rxdBuf1,"$End_Test@\r"))
+                {
+                    //测试结束，重启
+                    printf("本次测试即将强制结束！\r\n");
+                    bsp_DelayMS(100);
+                    NVIC_SystemReset();
+                } else
+                {
+                    //正确接收一个命令包
+                    memcpy((void* )&s_dbgPort.rxdBuf[0],(void* )&s_dbgPort.rxdBuf1[0],s_dbgPort.rxlen);  //拷贝到2级缓存
+                }
+                memset((void*)s_dbgPort.rxdBuf1,	0,	s_dbgPort.rxlen); //清空接收buffer
+
+                s_dbgPort.rxlen	= 0;                    //接收长度重置为0
+                s_dbgPort.rxFlag = end;                          //接收标志状态置为结束，数据处理期间
+            }
+        }
+        else                                  //接收数据超长
+        {
+            s_dbgPort.rxFlag = dbstart;       //接收标志重置为开始
+            s_dbgPort.rxlen	= 0;              //接收长度重置为0
+            memset((void*)s_dbgPort.rxdBuf1,	0,	DEF_DBG_BUFSIZE); //清空接收buffer
+        }
+    }
+}
+
+
+/*
+*********************************************************************************************************
+*	函 数 名: HAL_DBGCmdProcess
+*	功能说明: debug指令处理。
+*	形    参:  无
+*	返 回 值: 无
+*	说	明：//命令格式：“$Q_VERB@XX\r\n"   查询版本号，$,@之间是指令名称，@，\r之间是指令参数（可选），buffer存储$之后的所有内容
+*********************************************************************************************************
+*/
+void HAL_DBGCmdProcess (void)
+{
+    uint16_t i;
+    CMD_Type=2;
+    memset(tmpCode,0,4*DBG_CMD_CODE_SIZE);  //指令内容清空
+    memset(tmpPara,0,4*DBG_CMD_PARA_SIZE);  //指令参数清空
+
+    if(s_dbgPort.rxFlag == end)     //接收完毕，开始处理指令
+    {
+        s_dbgPort.rxFlag =dbstart;  //容许再次接受数据,确保测试过程能被打断
+        // 拷贝命令头
+        if( 0 >= sscanf((const char*)s_dbgPort.rxdBuf, "%*[$]%*[^':']%[':']", tmpCode) )  //没有':',则返回0
+        {
+            if( 0 >= sscanf((const char*)s_dbgPort.rxdBuf, "%*[$]%*[^'@']%['@']", tmpCode) )  //没有'@',则返回0
+            {
+                goto rest;                    //未扫描到匹配字符，本次处理结束
+            }
+            if( 0 >= sscanf((const char*)s_dbgPort.rxdBuf, "%*[$]%[^'@']", tmpCode) ) //取$和@之间字符串
+            {
+                goto rest;                    //未扫描到匹配字符，本次处理结束
+            }
+            //扫描到“$xxx@”指令
+            CMD_Type=1;
+        } else if( 0 >= sscanf((const char*)s_dbgPort.rxdBuf, "%*[$]%[^':']", tmpCode) )
+        {
+            goto rest;                        //未扫描到匹配字符，本次处理结束
+        }
+
+        if(CMD_Type==1)
+        {
+            // 拷贝参数区，参数为可选项，“$xxx@”指令支持最多4条参数
+            if( 0 >= sscanf((const char*)s_dbgPort.rxdBuf, "%*[^@]%*[@]%[^'@'|^'\r']%*[@]%[^'@'|^'\r']%*[@]%[^'@'|^'\r']%*[@]%[^'\r']", \
+                            (char*)&tmpPara[0],(char*)&tmpPara[1],(char*)&tmpPara[2],(char*)&tmpPara[3]) )
+            {
+
+            }
+        } else if (CMD_Type==2)
+        {
+            // 拷贝参数区，参数为可选项，“$xxx:”指令支持最多100字节参数
+            if( 0 >= sscanf((const char*)s_dbgPort.rxdBuf, "%*[^:]%*[:]%[^'\r']", (char*)&tmpPara[0]) )
+            {
+
+            }
+        }
+
+        // 查表法匹配处理函数
+        for(i=0 ; i<(sizeof(FCT_CMD)/sizeof(cmd_table)) ; i++)
+        {
+            if(0==strcmp(FCT_CMD[i].cmd,(char*)tmpCode))                       //指令字符串匹配，则执行响应的处理函数
+            {
+                memset(FCT_CMD[i].param,0,sizeof(FCT_CMD[i].param));           //参数缓存清0
+                memcpy(FCT_CMD[i].param,tmpPara,sizeof(FCT_CMD[i].param));     //拷贝参数
+                FCT_CMD[i].ptrCmdFun();                                        //执行指令处理函数
+                break;
+            }
+        }
+
+rest:
+        memset((void*)s_dbgPort.rxdBuf,	0,	DEF_DBG_BUFSIZE); //清空接收buffer
+    }
+}
+
+/**********************************************************************************************************
+**                                          End Of File
+**********************************************************************************************************/

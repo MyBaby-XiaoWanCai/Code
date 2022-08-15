@@ -1,0 +1,13 @@
+.\output\debug\rtx_lib.o: E:\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\RTOS2\RTX\Source\rtx_lib.c
+.\output\debug\rtx_lib.o: E:\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_compiler.h
+.\output\debug\rtx_lib.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\output\debug\rtx_lib.o: E:\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_armcc.h
+.\output\debug\rtx_lib.o: .\RTE\CMSIS\RTX_Config.h
+.\output\debug\rtx_lib.o: .\RTE\_HC32F4A0SITB_Template\RTE_Components.h
+.\output\debug\rtx_lib.o: E:\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\RTOS2\RTX\Include\rtx_os.h
+.\output\debug\rtx_lib.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\output\debug\rtx_lib.o: E:\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\RTOS2\Include\cmsis_os2.h
+.\output\debug\rtx_lib.o: E:\Arm\Packs\Keil\ARM_Compiler\1.6.3\Include\EventRecorder.h
+.\output\debug\rtx_lib.o: .\RTE\Compiler\EventRecorderConf.h
+.\output\debug\rtx_lib.o: E:\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\RTOS2\RTX\Include\rtx_evr.h
+.\output\debug\rtx_lib.o: .\RTE\Compiler\EventRecorderConf.h

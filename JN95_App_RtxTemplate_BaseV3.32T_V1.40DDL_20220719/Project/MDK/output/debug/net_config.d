@@ -1,0 +1,13 @@
+.\output\debug\net_config.o: RTE\Network\Net_Config.c
+.\output\debug\net_config.o: .\RTE\_HC32F4A0SITB_Template\RTE_Components.h
+.\output\debug\net_config.o: RTE\Network\Net_Config_UDP.h
+.\output\debug\net_config.o: RTE\Network\Net_Config_TCP.h
+.\output\debug\net_config.o: C:\Keil_v5\ARM\PACK\Keil\MDK-Middleware\7.12.0\Network\Include\net_config.h
+.\output\debug\net_config.o: C:\Keil_v5\ARM\PACK\Keil\MDK-Middleware\7.12.0\Network\Include\rl_net_lib.h
+.\output\debug\net_config.o: C:\Keil_v5\ARM\PACK\Keil\MDK-Middleware\7.12.0\Network\Include\rl_net_ds.h
+.\output\debug\net_config.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\output\debug\net_config.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+.\output\debug\net_config.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\output\debug\net_config.o: C:\Keil_v5\ARM\PACK\Keil\MDK-Middleware\7.12.0\Network\Include\net_rtos2.h
+.\output\debug\net_config.o: C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.7.0\CMSIS\RTOS2\Include\cmsis_os2.h
+.\output\debug\net_config.o: C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.7.0\CMSIS\RTOS2\RTX\Include\rtx_os.h

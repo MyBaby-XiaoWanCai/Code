@@ -1,0 +1,13 @@
+.\output\debug\os_systick.o: E:\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\RTOS2\Source\os_systick.c
+.\output\debug\os_systick.o: E:\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\RTOS2\Include\os_tick.h
+.\output\debug\os_systick.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\output\debug\os_systick.o: .\RTE\_HC32F4A0SITB_Template\RTE_Components.h
+.\output\debug\os_systick.o: ..\..\User\common\HC32_COMMON.h
+.\output\debug\os_systick.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\output\debug\os_systick.o: ..\..\User\common\hc32f4a0sitb.h
+.\output\debug\os_systick.o: E:\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include\core_cm4.h
+.\output\debug\os_systick.o: E:\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_version.h
+.\output\debug\os_systick.o: E:\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_compiler.h
+.\output\debug\os_systick.o: E:\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_armcc.h
+.\output\debug\os_systick.o: E:\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include\mpu_armv7.h
+.\output\debug\os_systick.o: ..\..\User\common\system_hc32f4a0sitb.h

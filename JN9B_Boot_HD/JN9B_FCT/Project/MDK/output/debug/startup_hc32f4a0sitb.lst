@@ -1,0 +1,2579 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000         ;/******************************************************
+                       ***********************
+    2 00000000         ; * Copyright (C) 2020, Huada Semiconductor Co., Ltd. Al
+                       l rights reserved.
+    3 00000000         ; *
+    4 00000000         ; * This software component is licensed by HDSC under BS
+                       D 3-Clause license
+    5 00000000         ; * (the "License"); You may not use this file except in
+                        compliance with the
+    6 00000000         ; * License. You may obtain a copy of the License at:
+    7 00000000         ; *                    opensource.org/licenses/BSD-3-Cla
+                       use
+    8 00000000         ; *
+    9 00000000         ; */
+   10 00000000         ;/******************************************************
+                       **********************/
+   11 00000000         ;/*  Startup for MDK                                    
+                                            */
+   12 00000000         ;/*  Version     V1.0                                   
+                                            */
+   13 00000000         ;/*  Date        2020-07-03                             
+                                            */
+   14 00000000         ;/*  Target-mcu  HC32F4A0                               
+                                            */
+   15 00000000         ;/******************************************************
+                       **********************/
+   16 00000000         
+   17 00000000         ; Stack Configuration
+   18 00000000         ; Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
+   19 00000000         
+   20 00000000 00004000 
+                       Stack_Size
+                               EQU              0x00004000
+   21 00000000         
+   22 00000000                 AREA             STACK, NOINIT, READWRITE, ALIGN
+=3
+   23 00000000         Stack_Mem
+                               SPACE            Stack_Size
+   24 00004000         __initial_sp
+   25 00004000         
+   26 00004000         
+   27 00004000         ; Heap Configuration
+   28 00004000         ;  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
+   29 00004000         
+   30 00004000 00002000 
+                       Heap_Size
+                               EQU              0x00002000
+   31 00004000         
+   32 00004000                 AREA             HEAP, NOINIT, READWRITE, ALIGN=
+3
+   33 00000000         __heap_base
+   34 00000000         Heap_Mem
+                               SPACE            Heap_Size
+   35 00002000         __heap_limit
+   36 00002000         
+   37 00002000         
+   38 00002000                 PRESERVE8
+   39 00002000                 THUMB
+   40 00002000         
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+   41 00002000         
+   42 00002000         ; Vector Table Mapped to Address 0 at Reset
+   43 00002000         
+   44 00002000                 AREA             RESET, DATA, READONLY
+   45 00000000                 EXPORT           __Vectors
+   46 00000000                 EXPORT           __Vectors_End
+   47 00000000                 EXPORT           __Vectors_Size
+   48 00000000         
+   49 00000000 00000000 
+                       __Vectors
+                               DCD              __initial_sp ; Top of Stack
+   50 00000004 00000000        DCD              Reset_Handler ; Reset Handler
+   51 00000008 00000000        DCD              NMI_Handler ; NMI Handler
+   52 0000000C 00000000        DCD              HardFault_Handler ; Hard Fault 
+                                                            Handler
+   53 00000010 00000000        DCD              MemManage_Handler 
+                                                            ; MPU Fault Handler
+                                                            
+   54 00000014 00000000        DCD              BusFault_Handler 
+                                                            ; Bus Fault Handler
+                                                            
+   55 00000018 00000000        DCD              UsageFault_Handler ; Usage Faul
+                                                            t Handler
+   56 0000001C 00000000        DCD              0           ; Reserved
+   57 00000020 00000000        DCD              0           ; Reserved
+   58 00000024 00000000        DCD              0           ; Reserved
+   59 00000028 00000000        DCD              0           ; Reserved
+   60 0000002C 00000000        DCD              SVC_Handler ; SVCall Handler
+   61 00000030 00000000        DCD              DebugMon_Handler ; Debug Monito
+                                                            r Handler
+   62 00000034 00000000        DCD              0           ; Reserved
+   63 00000038 00000000        DCD              PendSV_Handler ; PendSV Handler
+                                                            
+   64 0000003C 00000000        DCD              SysTick_Handler 
+                                                            ; SysTick Handler
+   65 00000040         
+   66 00000040 00000000        DCD              IRQ000_Handler
+   67 00000044 00000000        DCD              IRQ001_Handler
+   68 00000048 00000000        DCD              IRQ002_Handler
+   69 0000004C 00000000        DCD              IRQ003_Handler
+   70 00000050 00000000        DCD              IRQ004_Handler
+   71 00000054 00000000        DCD              IRQ005_Handler
+   72 00000058 00000000        DCD              IRQ006_Handler
+   73 0000005C 00000000        DCD              IRQ007_Handler
+   74 00000060 00000000        DCD              IRQ008_Handler
+   75 00000064 00000000        DCD              IRQ009_Handler
+   76 00000068 00000000        DCD              IRQ010_Handler
+   77 0000006C 00000000        DCD              IRQ011_Handler
+   78 00000070 00000000        DCD              IRQ012_Handler
+   79 00000074 00000000        DCD              IRQ013_Handler
+   80 00000078 00000000        DCD              IRQ014_Handler
+   81 0000007C 00000000        DCD              IRQ015_Handler
+   82 00000080 00000000        DCD              IRQ016_Handler
+   83 00000084 00000000        DCD              IRQ017_Handler
+   84 00000088 00000000        DCD              IRQ018_Handler
+   85 0000008C 00000000        DCD              IRQ019_Handler
+   86 00000090 00000000        DCD              IRQ020_Handler
+   87 00000094 00000000        DCD              IRQ021_Handler
+   88 00000098 00000000        DCD              IRQ022_Handler
+
+
+
+ARM Macro Assembler    Page 3 
+
+
+   89 0000009C 00000000        DCD              IRQ023_Handler
+   90 000000A0 00000000        DCD              IRQ024_Handler
+   91 000000A4 00000000        DCD              IRQ025_Handler
+   92 000000A8 00000000        DCD              IRQ026_Handler
+   93 000000AC 00000000        DCD              IRQ027_Handler
+   94 000000B0 00000000        DCD              IRQ028_Handler
+   95 000000B4 00000000        DCD              IRQ029_Handler
+   96 000000B8 00000000        DCD              IRQ030_Handler
+   97 000000BC 00000000        DCD              IRQ031_Handler
+   98 000000C0 00000000        DCD              IRQ032_Handler
+   99 000000C4 00000000        DCD              IRQ033_Handler
+  100 000000C8 00000000        DCD              IRQ034_Handler
+  101 000000CC 00000000        DCD              IRQ035_Handler
+  102 000000D0 00000000        DCD              IRQ036_Handler
+  103 000000D4 00000000        DCD              IRQ037_Handler
+  104 000000D8 00000000        DCD              IRQ038_Handler
+  105 000000DC 00000000        DCD              IRQ039_Handler
+  106 000000E0 00000000        DCD              IRQ040_Handler
+  107 000000E4 00000000        DCD              IRQ041_Handler
+  108 000000E8 00000000        DCD              IRQ042_Handler
+  109 000000EC 00000000        DCD              IRQ043_Handler
+  110 000000F0 00000000        DCD              IRQ044_Handler
+  111 000000F4 00000000        DCD              IRQ045_Handler
+  112 000000F8 00000000        DCD              IRQ046_Handler
+  113 000000FC 00000000        DCD              IRQ047_Handler
+  114 00000100 00000000        DCD              IRQ048_Handler
+  115 00000104 00000000        DCD              IRQ049_Handler
+  116 00000108 00000000        DCD              IRQ050_Handler
+  117 0000010C 00000000        DCD              IRQ051_Handler
+  118 00000110 00000000        DCD              IRQ052_Handler
+  119 00000114 00000000        DCD              IRQ053_Handler
+  120 00000118 00000000        DCD              IRQ054_Handler
+  121 0000011C 00000000        DCD              IRQ055_Handler
+  122 00000120 00000000        DCD              IRQ056_Handler
+  123 00000124 00000000        DCD              IRQ057_Handler
+  124 00000128 00000000        DCD              IRQ058_Handler
+  125 0000012C 00000000        DCD              IRQ059_Handler
+  126 00000130 00000000        DCD              IRQ060_Handler
+  127 00000134 00000000        DCD              IRQ061_Handler
+  128 00000138 00000000        DCD              IRQ062_Handler
+  129 0000013C 00000000        DCD              IRQ063_Handler
+  130 00000140 00000000        DCD              IRQ064_Handler
+  131 00000144 00000000        DCD              IRQ065_Handler
+  132 00000148 00000000        DCD              IRQ066_Handler
+  133 0000014C 00000000        DCD              IRQ067_Handler
+  134 00000150 00000000        DCD              IRQ068_Handler
+  135 00000154 00000000        DCD              IRQ069_Handler
+  136 00000158 00000000        DCD              IRQ070_Handler
+  137 0000015C 00000000        DCD              IRQ071_Handler
+  138 00000160 00000000        DCD              IRQ072_Handler
+  139 00000164 00000000        DCD              IRQ073_Handler
+  140 00000168 00000000        DCD              IRQ074_Handler
+  141 0000016C 00000000        DCD              IRQ075_Handler
+  142 00000170 00000000        DCD              IRQ076_Handler
+  143 00000174 00000000        DCD              IRQ077_Handler
+  144 00000178 00000000        DCD              IRQ078_Handler
+  145 0000017C 00000000        DCD              IRQ079_Handler
+  146 00000180 00000000        DCD              IRQ080_Handler
+  147 00000184 00000000        DCD              IRQ081_Handler
+
+
+
+ARM Macro Assembler    Page 4 
+
+
+  148 00000188 00000000        DCD              IRQ082_Handler
+  149 0000018C 00000000        DCD              IRQ083_Handler
+  150 00000190 00000000        DCD              IRQ084_Handler
+  151 00000194 00000000        DCD              IRQ085_Handler
+  152 00000198 00000000        DCD              IRQ086_Handler
+  153 0000019C 00000000        DCD              IRQ087_Handler
+  154 000001A0 00000000        DCD              IRQ088_Handler
+  155 000001A4 00000000        DCD              IRQ089_Handler
+  156 000001A8 00000000        DCD              IRQ090_Handler
+  157 000001AC 00000000        DCD              IRQ091_Handler
+  158 000001B0 00000000        DCD              IRQ092_Handler
+  159 000001B4 00000000        DCD              IRQ093_Handler
+  160 000001B8 00000000        DCD              IRQ094_Handler
+  161 000001BC 00000000        DCD              IRQ095_Handler
+  162 000001C0 00000000        DCD              IRQ096_Handler
+  163 000001C4 00000000        DCD              IRQ097_Handler
+  164 000001C8 00000000        DCD              IRQ098_Handler
+  165 000001CC 00000000        DCD              IRQ099_Handler
+  166 000001D0 00000000        DCD              IRQ100_Handler
+  167 000001D4 00000000        DCD              IRQ101_Handler
+  168 000001D8 00000000        DCD              IRQ102_Handler
+  169 000001DC 00000000        DCD              IRQ103_Handler
+  170 000001E0 00000000        DCD              IRQ104_Handler
+  171 000001E4 00000000        DCD              IRQ105_Handler
+  172 000001E8 00000000        DCD              IRQ106_Handler
+  173 000001EC 00000000        DCD              IRQ107_Handler
+  174 000001F0 00000000        DCD              IRQ108_Handler
+  175 000001F4 00000000        DCD              IRQ109_Handler
+  176 000001F8 00000000        DCD              IRQ110_Handler
+  177 000001FC 00000000        DCD              IRQ111_Handler
+  178 00000200 00000000        DCD              IRQ112_Handler
+  179 00000204 00000000        DCD              IRQ113_Handler
+  180 00000208 00000000        DCD              IRQ114_Handler
+  181 0000020C 00000000        DCD              IRQ115_Handler
+  182 00000210 00000000        DCD              IRQ116_Handler
+  183 00000214 00000000        DCD              IRQ117_Handler
+  184 00000218 00000000        DCD              IRQ118_Handler
+  185 0000021C 00000000        DCD              IRQ119_Handler
+  186 00000220 00000000        DCD              IRQ120_Handler
+  187 00000224 00000000        DCD              IRQ121_Handler
+  188 00000228 00000000        DCD              IRQ122_Handler
+  189 0000022C 00000000        DCD              IRQ123_Handler
+  190 00000230 00000000        DCD              IRQ124_Handler
+  191 00000234 00000000        DCD              IRQ125_Handler
+  192 00000238 00000000        DCD              IRQ126_Handler
+  193 0000023C 00000000        DCD              IRQ127_Handler
+  194 00000240 00000000        DCD              IRQ128_Handler
+  195 00000244 00000000        DCD              IRQ129_Handler
+  196 00000248 00000000        DCD              IRQ130_Handler
+  197 0000024C 00000000        DCD              IRQ131_Handler
+  198 00000250 00000000        DCD              IRQ132_Handler
+  199 00000254 00000000        DCD              IRQ133_Handler
+  200 00000258 00000000        DCD              IRQ134_Handler
+  201 0000025C 00000000        DCD              IRQ135_Handler
+  202 00000260 00000000        DCD              IRQ136_Handler
+  203 00000264 00000000        DCD              IRQ137_Handler
+  204 00000268 00000000        DCD              IRQ138_Handler
+  205 0000026C 00000000        DCD              IRQ139_Handler
+  206 00000270 00000000        DCD              IRQ140_Handler
+
+
+
+ARM Macro Assembler    Page 5 
+
+
+  207 00000274 00000000        DCD              IRQ141_Handler
+  208 00000278 00000000        DCD              IRQ142_Handler
+  209 0000027C 00000000        DCD              IRQ143_Handler
+  210 00000280         
+  211 00000280         __Vectors_End
+  212 00000280         
+  213 00000280 00000280 
+                       __Vectors_Size
+                               EQU              __Vectors_End - __Vectors
+  214 00000280         
+  215 00000280                 AREA             |.text|, CODE, READONLY
+  216 00000000         
+  217 00000000         
+  218 00000000         ; Reset Handler
+  219 00000000         
+  220 00000000         Reset_Handler
+                               PROC
+  221 00000000                 EXPORT           Reset_Handler             [WEAK
+]
+  222 00000000                 IMPORT           SystemInit
+  223 00000000                 IMPORT           __main
+  224 00000000         
+  225 00000000 4806            LDR              R0, =SystemInit
+  226 00000002 4780            BLX              R0
+  227 00000004 4806            LDR              R0, =__main
+  228 00000006 4700            BX               R0
+  229 00000008                 ENDP
+  230 00000008         
+  231 00000008         
+  232 00000008         ; Dummy Exception Handlers (infinite loops which can be 
+                       modified)
+  233 00000008         
+  234 00000008         NMI_Handler
+                               PROC
+  235 00000008                 EXPORT           NMI_Handler               [WEAK
+]
+  236 00000008 E7FE            B                .
+  237 0000000A                 ENDP
+  239 0000000A         HardFault_Handler
+                               PROC
+  240 0000000A                 EXPORT           HardFault_Handler         [WEAK
+]
+  241 0000000A E7FE            B                .
+  242 0000000C                 ENDP
+  244 0000000C         MemManage_Handler
+                               PROC
+  245 0000000C                 EXPORT           MemManage_Handler         [WEAK
+]
+  246 0000000C E7FE            B                .
+  247 0000000E                 ENDP
+  249 0000000E         BusFault_Handler
+                               PROC
+  250 0000000E                 EXPORT           BusFault_Handler          [WEAK
+]
+  251 0000000E E7FE            B                .
+  252 00000010                 ENDP
+  254 00000010         UsageFault_Handler
+                               PROC
+  255 00000010                 EXPORT           UsageFault_Handler        [WEAK
+
+
+
+ARM Macro Assembler    Page 6 
+
+
+]
+  256 00000010 E7FE            B                .
+  257 00000012                 ENDP
+  258 00000012         SVC_Handler
+                               PROC
+  259 00000012                 EXPORT           SVC_Handler               [WEAK
+]
+  260 00000012 E7FE            B                .
+  261 00000014                 ENDP
+  263 00000014         DebugMon_Handler
+                               PROC
+  264 00000014                 EXPORT           DebugMon_Handler          [WEAK
+]
+  265 00000014 E7FE            B                .
+  266 00000016                 ENDP
+  268 00000016         PendSV_Handler
+                               PROC
+  269 00000016                 EXPORT           PendSV_Handler            [WEAK
+]
+  270 00000016 E7FE            B                .
+  271 00000018                 ENDP
+  273 00000018         SysTick_Handler
+                               PROC
+  274 00000018                 EXPORT           SysTick_Handler           [WEAK
+]
+  275 00000018 E7FE            B                .
+  276 0000001A                 ENDP
+  277 0000001A         
+  278 0000001A         Default_Handler
+                               PROC
+  279 0000001A                 EXPORT           IRQ000_Handler            [WEAK
+]
+  280 0000001A                 EXPORT           IRQ001_Handler            [WEAK
+]
+  281 0000001A                 EXPORT           IRQ002_Handler            [WEAK
+]
+  282 0000001A                 EXPORT           IRQ003_Handler            [WEAK
+]
+  283 0000001A                 EXPORT           IRQ004_Handler            [WEAK
+]
+  284 0000001A                 EXPORT           IRQ005_Handler            [WEAK
+]
+  285 0000001A                 EXPORT           IRQ006_Handler            [WEAK
+]
+  286 0000001A                 EXPORT           IRQ007_Handler            [WEAK
+]
+  287 0000001A                 EXPORT           IRQ008_Handler            [WEAK
+]
+  288 0000001A                 EXPORT           IRQ009_Handler            [WEAK
+]
+  289 0000001A                 EXPORT           IRQ010_Handler            [WEAK
+]
+  290 0000001A                 EXPORT           IRQ011_Handler            [WEAK
+]
+  291 0000001A                 EXPORT           IRQ012_Handler            [WEAK
+]
+  292 0000001A                 EXPORT           IRQ013_Handler            [WEAK
+]
+  293 0000001A                 EXPORT           IRQ014_Handler            [WEAK
+
+
+
+ARM Macro Assembler    Page 7 
+
+
+]
+  294 0000001A                 EXPORT           IRQ015_Handler            [WEAK
+]
+  295 0000001A                 EXPORT           IRQ016_Handler            [WEAK
+]
+  296 0000001A                 EXPORT           IRQ017_Handler            [WEAK
+]
+  297 0000001A                 EXPORT           IRQ018_Handler            [WEAK
+]
+  298 0000001A                 EXPORT           IRQ019_Handler            [WEAK
+]
+  299 0000001A                 EXPORT           IRQ020_Handler            [WEAK
+]
+  300 0000001A                 EXPORT           IRQ021_Handler            [WEAK
+]
+  301 0000001A                 EXPORT           IRQ022_Handler            [WEAK
+]
+  302 0000001A                 EXPORT           IRQ023_Handler            [WEAK
+]
+  303 0000001A                 EXPORT           IRQ024_Handler            [WEAK
+]
+  304 0000001A                 EXPORT           IRQ025_Handler            [WEAK
+]
+  305 0000001A                 EXPORT           IRQ026_Handler            [WEAK
+]
+  306 0000001A                 EXPORT           IRQ027_Handler            [WEAK
+]
+  307 0000001A                 EXPORT           IRQ028_Handler            [WEAK
+]
+  308 0000001A                 EXPORT           IRQ029_Handler            [WEAK
+]
+  309 0000001A                 EXPORT           IRQ030_Handler            [WEAK
+]
+  310 0000001A                 EXPORT           IRQ031_Handler            [WEAK
+]
+  311 0000001A                 EXPORT           IRQ032_Handler            [WEAK
+]
+  312 0000001A                 EXPORT           IRQ033_Handler            [WEAK
+]
+  313 0000001A                 EXPORT           IRQ034_Handler            [WEAK
+]
+  314 0000001A                 EXPORT           IRQ035_Handler            [WEAK
+]
+  315 0000001A                 EXPORT           IRQ036_Handler            [WEAK
+]
+  316 0000001A                 EXPORT           IRQ037_Handler            [WEAK
+]
+  317 0000001A                 EXPORT           IRQ038_Handler            [WEAK
+]
+  318 0000001A                 EXPORT           IRQ039_Handler            [WEAK
+]
+  319 0000001A                 EXPORT           IRQ040_Handler            [WEAK
+]
+  320 0000001A                 EXPORT           IRQ041_Handler            [WEAK
+]
+  321 0000001A                 EXPORT           IRQ042_Handler            [WEAK
+]
+  322 0000001A                 EXPORT           IRQ043_Handler            [WEAK
+]
+
+
+
+ARM Macro Assembler    Page 8 
+
+
+  323 0000001A                 EXPORT           IRQ044_Handler            [WEAK
+]
+  324 0000001A                 EXPORT           IRQ045_Handler            [WEAK
+]
+  325 0000001A                 EXPORT           IRQ046_Handler            [WEAK
+]
+  326 0000001A                 EXPORT           IRQ047_Handler            [WEAK
+]
+  327 0000001A                 EXPORT           IRQ048_Handler            [WEAK
+]
+  328 0000001A                 EXPORT           IRQ049_Handler            [WEAK
+]
+  329 0000001A                 EXPORT           IRQ050_Handler            [WEAK
+]
+  330 0000001A                 EXPORT           IRQ051_Handler            [WEAK
+]
+  331 0000001A                 EXPORT           IRQ052_Handler            [WEAK
+]
+  332 0000001A                 EXPORT           IRQ053_Handler            [WEAK
+]
+  333 0000001A                 EXPORT           IRQ054_Handler            [WEAK
+]
+  334 0000001A                 EXPORT           IRQ055_Handler            [WEAK
+]
+  335 0000001A                 EXPORT           IRQ056_Handler            [WEAK
+]
+  336 0000001A                 EXPORT           IRQ057_Handler            [WEAK
+]
+  337 0000001A                 EXPORT           IRQ058_Handler            [WEAK
+]
+  338 0000001A                 EXPORT           IRQ059_Handler            [WEAK
+]
+  339 0000001A                 EXPORT           IRQ060_Handler            [WEAK
+]
+  340 0000001A                 EXPORT           IRQ061_Handler            [WEAK
+]
+  341 0000001A                 EXPORT           IRQ062_Handler            [WEAK
+]
+  342 0000001A                 EXPORT           IRQ063_Handler            [WEAK
+]
+  343 0000001A                 EXPORT           IRQ064_Handler            [WEAK
+]
+  344 0000001A                 EXPORT           IRQ065_Handler            [WEAK
+]
+  345 0000001A                 EXPORT           IRQ066_Handler            [WEAK
+]
+  346 0000001A                 EXPORT           IRQ067_Handler            [WEAK
+]
+  347 0000001A                 EXPORT           IRQ068_Handler            [WEAK
+]
+  348 0000001A                 EXPORT           IRQ069_Handler            [WEAK
+]
+  349 0000001A                 EXPORT           IRQ070_Handler            [WEAK
+]
+  350 0000001A                 EXPORT           IRQ071_Handler            [WEAK
+]
+  351 0000001A                 EXPORT           IRQ072_Handler            [WEAK
+]
+  352 0000001A                 EXPORT           IRQ073_Handler            [WEAK
+
+
+
+ARM Macro Assembler    Page 9 
+
+
+]
+  353 0000001A                 EXPORT           IRQ074_Handler            [WEAK
+]
+  354 0000001A                 EXPORT           IRQ075_Handler            [WEAK
+]
+  355 0000001A                 EXPORT           IRQ076_Handler            [WEAK
+]
+  356 0000001A                 EXPORT           IRQ077_Handler            [WEAK
+]
+  357 0000001A                 EXPORT           IRQ078_Handler            [WEAK
+]
+  358 0000001A                 EXPORT           IRQ079_Handler            [WEAK
+]
+  359 0000001A                 EXPORT           IRQ080_Handler            [WEAK
+]
+  360 0000001A                 EXPORT           IRQ081_Handler            [WEAK
+]
+  361 0000001A                 EXPORT           IRQ082_Handler            [WEAK
+]
+  362 0000001A                 EXPORT           IRQ083_Handler            [WEAK
+]
+  363 0000001A                 EXPORT           IRQ084_Handler            [WEAK
+]
+  364 0000001A                 EXPORT           IRQ085_Handler            [WEAK
+]
+  365 0000001A                 EXPORT           IRQ086_Handler            [WEAK
+]
+  366 0000001A                 EXPORT           IRQ087_Handler            [WEAK
+]
+  367 0000001A                 EXPORT           IRQ088_Handler            [WEAK
+]
+  368 0000001A                 EXPORT           IRQ089_Handler            [WEAK
+]
+  369 0000001A                 EXPORT           IRQ090_Handler            [WEAK
+]
+  370 0000001A                 EXPORT           IRQ091_Handler            [WEAK
+]
+  371 0000001A                 EXPORT           IRQ092_Handler            [WEAK
+]
+  372 0000001A                 EXPORT           IRQ093_Handler            [WEAK
+]
+  373 0000001A                 EXPORT           IRQ094_Handler            [WEAK
+]
+  374 0000001A                 EXPORT           IRQ095_Handler            [WEAK
+]
+  375 0000001A                 EXPORT           IRQ096_Handler            [WEAK
+]
+  376 0000001A                 EXPORT           IRQ097_Handler            [WEAK
+]
+  377 0000001A                 EXPORT           IRQ098_Handler            [WEAK
+]
+  378 0000001A                 EXPORT           IRQ099_Handler            [WEAK
+]
+  379 0000001A                 EXPORT           IRQ100_Handler            [WEAK
+]
+  380 0000001A                 EXPORT           IRQ101_Handler            [WEAK
+]
+  381 0000001A                 EXPORT           IRQ102_Handler            [WEAK
+]
+
+
+
+ARM Macro Assembler    Page 10 
+
+
+  382 0000001A                 EXPORT           IRQ103_Handler            [WEAK
+]
+  383 0000001A                 EXPORT           IRQ104_Handler            [WEAK
+]
+  384 0000001A                 EXPORT           IRQ105_Handler            [WEAK
+]
+  385 0000001A                 EXPORT           IRQ106_Handler            [WEAK
+]
+  386 0000001A                 EXPORT           IRQ107_Handler            [WEAK
+]
+  387 0000001A                 EXPORT           IRQ108_Handler            [WEAK
+]
+  388 0000001A                 EXPORT           IRQ109_Handler            [WEAK
+]
+  389 0000001A                 EXPORT           IRQ110_Handler            [WEAK
+]
+  390 0000001A                 EXPORT           IRQ111_Handler            [WEAK
+]
+  391 0000001A                 EXPORT           IRQ112_Handler            [WEAK
+]
+  392 0000001A                 EXPORT           IRQ113_Handler            [WEAK
+]
+  393 0000001A                 EXPORT           IRQ114_Handler            [WEAK
+]
+  394 0000001A                 EXPORT           IRQ115_Handler            [WEAK
+]
+  395 0000001A                 EXPORT           IRQ116_Handler            [WEAK
+]
+  396 0000001A                 EXPORT           IRQ117_Handler            [WEAK
+]
+  397 0000001A                 EXPORT           IRQ118_Handler            [WEAK
+]
+  398 0000001A                 EXPORT           IRQ119_Handler            [WEAK
+]
+  399 0000001A                 EXPORT           IRQ120_Handler            [WEAK
+]
+  400 0000001A                 EXPORT           IRQ121_Handler            [WEAK
+]
+  401 0000001A                 EXPORT           IRQ122_Handler            [WEAK
+]
+  402 0000001A                 EXPORT           IRQ123_Handler            [WEAK
+]
+  403 0000001A                 EXPORT           IRQ124_Handler            [WEAK
+]
+  404 0000001A                 EXPORT           IRQ125_Handler            [WEAK
+]
+  405 0000001A                 EXPORT           IRQ126_Handler            [WEAK
+]
+  406 0000001A                 EXPORT           IRQ127_Handler            [WEAK
+]
+  407 0000001A                 EXPORT           IRQ128_Handler            [WEAK
+]
+  408 0000001A                 EXPORT           IRQ129_Handler            [WEAK
+]
+  409 0000001A                 EXPORT           IRQ130_Handler            [WEAK
+]
+  410 0000001A                 EXPORT           IRQ131_Handler            [WEAK
+]
+  411 0000001A                 EXPORT           IRQ132_Handler            [WEAK
+
+
+
+ARM Macro Assembler    Page 11 
+
+
+]
+  412 0000001A                 EXPORT           IRQ133_Handler            [WEAK
+]
+  413 0000001A                 EXPORT           IRQ134_Handler            [WEAK
+]
+  414 0000001A                 EXPORT           IRQ135_Handler            [WEAK
+]
+  415 0000001A                 EXPORT           IRQ136_Handler            [WEAK
+]
+  416 0000001A                 EXPORT           IRQ137_Handler            [WEAK
+]
+  417 0000001A                 EXPORT           IRQ138_Handler            [WEAK
+]
+  418 0000001A                 EXPORT           IRQ139_Handler            [WEAK
+]
+  419 0000001A                 EXPORT           IRQ140_Handler            [WEAK
+]
+  420 0000001A                 EXPORT           IRQ141_Handler            [WEAK
+]
+  421 0000001A                 EXPORT           IRQ142_Handler            [WEAK
+]
+  422 0000001A                 EXPORT           IRQ143_Handler            [WEAK
+]
+  423 0000001A         
+  424 0000001A         IRQ000_Handler
+  425 0000001A         IRQ001_Handler
+  426 0000001A         IRQ002_Handler
+  427 0000001A         IRQ003_Handler
+  428 0000001A         IRQ004_Handler
+  429 0000001A         IRQ005_Handler
+  430 0000001A         IRQ006_Handler
+  431 0000001A         IRQ007_Handler
+  432 0000001A         IRQ008_Handler
+  433 0000001A         IRQ009_Handler
+  434 0000001A         IRQ010_Handler
+  435 0000001A         IRQ011_Handler
+  436 0000001A         IRQ012_Handler
+  437 0000001A         IRQ013_Handler
+  438 0000001A         IRQ014_Handler
+  439 0000001A         IRQ015_Handler
+  440 0000001A         IRQ016_Handler
+  441 0000001A         IRQ017_Handler
+  442 0000001A         IRQ018_Handler
+  443 0000001A         IRQ019_Handler
+  444 0000001A         IRQ020_Handler
+  445 0000001A         IRQ021_Handler
+  446 0000001A         IRQ022_Handler
+  447 0000001A         IRQ023_Handler
+  448 0000001A         IRQ024_Handler
+  449 0000001A         IRQ025_Handler
+  450 0000001A         IRQ026_Handler
+  451 0000001A         IRQ027_Handler
+  452 0000001A         IRQ028_Handler
+  453 0000001A         IRQ029_Handler
+  454 0000001A         IRQ030_Handler
+  455 0000001A         IRQ031_Handler
+  456 0000001A         IRQ032_Handler
+  457 0000001A         IRQ033_Handler
+  458 0000001A         IRQ034_Handler
+
+
+
+ARM Macro Assembler    Page 12 
+
+
+  459 0000001A         IRQ035_Handler
+  460 0000001A         IRQ036_Handler
+  461 0000001A         IRQ037_Handler
+  462 0000001A         IRQ038_Handler
+  463 0000001A         IRQ039_Handler
+  464 0000001A         IRQ040_Handler
+  465 0000001A         IRQ041_Handler
+  466 0000001A         IRQ042_Handler
+  467 0000001A         IRQ043_Handler
+  468 0000001A         IRQ044_Handler
+  469 0000001A         IRQ045_Handler
+  470 0000001A         IRQ046_Handler
+  471 0000001A         IRQ047_Handler
+  472 0000001A         IRQ048_Handler
+  473 0000001A         IRQ049_Handler
+  474 0000001A         IRQ050_Handler
+  475 0000001A         IRQ051_Handler
+  476 0000001A         IRQ052_Handler
+  477 0000001A         IRQ053_Handler
+  478 0000001A         IRQ054_Handler
+  479 0000001A         IRQ055_Handler
+  480 0000001A         IRQ056_Handler
+  481 0000001A         IRQ057_Handler
+  482 0000001A         IRQ058_Handler
+  483 0000001A         IRQ059_Handler
+  484 0000001A         IRQ060_Handler
+  485 0000001A         IRQ061_Handler
+  486 0000001A         IRQ062_Handler
+  487 0000001A         IRQ063_Handler
+  488 0000001A         IRQ064_Handler
+  489 0000001A         IRQ065_Handler
+  490 0000001A         IRQ066_Handler
+  491 0000001A         IRQ067_Handler
+  492 0000001A         IRQ068_Handler
+  493 0000001A         IRQ069_Handler
+  494 0000001A         IRQ070_Handler
+  495 0000001A         IRQ071_Handler
+  496 0000001A         IRQ072_Handler
+  497 0000001A         IRQ073_Handler
+  498 0000001A         IRQ074_Handler
+  499 0000001A         IRQ075_Handler
+  500 0000001A         IRQ076_Handler
+  501 0000001A         IRQ077_Handler
+  502 0000001A         IRQ078_Handler
+  503 0000001A         IRQ079_Handler
+  504 0000001A         IRQ080_Handler
+  505 0000001A         IRQ081_Handler
+  506 0000001A         IRQ082_Handler
+  507 0000001A         IRQ083_Handler
+  508 0000001A         IRQ084_Handler
+  509 0000001A         IRQ085_Handler
+  510 0000001A         IRQ086_Handler
+  511 0000001A         IRQ087_Handler
+  512 0000001A         IRQ088_Handler
+  513 0000001A         IRQ089_Handler
+  514 0000001A         IRQ090_Handler
+  515 0000001A         IRQ091_Handler
+  516 0000001A         IRQ092_Handler
+  517 0000001A         IRQ093_Handler
+
+
+
+ARM Macro Assembler    Page 13 
+
+
+  518 0000001A         IRQ094_Handler
+  519 0000001A         IRQ095_Handler
+  520 0000001A         IRQ096_Handler
+  521 0000001A         IRQ097_Handler
+  522 0000001A         IRQ098_Handler
+  523 0000001A         IRQ099_Handler
+  524 0000001A         IRQ100_Handler
+  525 0000001A         IRQ101_Handler
+  526 0000001A         IRQ102_Handler
+  527 0000001A         IRQ103_Handler
+  528 0000001A         IRQ104_Handler
+  529 0000001A         IRQ105_Handler
+  530 0000001A         IRQ106_Handler
+  531 0000001A         IRQ107_Handler
+  532 0000001A         IRQ108_Handler
+  533 0000001A         IRQ109_Handler
+  534 0000001A         IRQ110_Handler
+  535 0000001A         IRQ111_Handler
+  536 0000001A         IRQ112_Handler
+  537 0000001A         IRQ113_Handler
+  538 0000001A         IRQ114_Handler
+  539 0000001A         IRQ115_Handler
+  540 0000001A         IRQ116_Handler
+  541 0000001A         IRQ117_Handler
+  542 0000001A         IRQ118_Handler
+  543 0000001A         IRQ119_Handler
+  544 0000001A         IRQ120_Handler
+  545 0000001A         IRQ121_Handler
+  546 0000001A         IRQ122_Handler
+  547 0000001A         IRQ123_Handler
+  548 0000001A         IRQ124_Handler
+  549 0000001A         IRQ125_Handler
+  550 0000001A         IRQ126_Handler
+  551 0000001A         IRQ127_Handler
+  552 0000001A         IRQ128_Handler
+  553 0000001A         IRQ129_Handler
+  554 0000001A         IRQ130_Handler
+  555 0000001A         IRQ131_Handler
+  556 0000001A         IRQ132_Handler
+  557 0000001A         IRQ133_Handler
+  558 0000001A         IRQ134_Handler
+  559 0000001A         IRQ135_Handler
+  560 0000001A         IRQ136_Handler
+  561 0000001A         IRQ137_Handler
+  562 0000001A         IRQ138_Handler
+  563 0000001A         IRQ139_Handler
+  564 0000001A         IRQ140_Handler
+  565 0000001A         IRQ141_Handler
+  566 0000001A         IRQ142_Handler
+  567 0000001A         IRQ143_Handler
+  568 0000001A         
+  569 0000001A E7FE            B                .
+  570 0000001C         
+  571 0000001C                 ENDP
+  572 0000001C         
+  573 0000001C                 ALIGN
+  574 0000001C         
+  575 0000001C         
+  576 0000001C         ; User Initial Stack & Heap
+
+
+
+ARM Macro Assembler    Page 14 
+
+
+  577 0000001C         
+  578 0000001C                 IF               :DEF:__MICROLIB
+  579 0000001C         
+  580 0000001C                 EXPORT           __initial_sp
+  581 0000001C                 EXPORT           __heap_base
+  582 0000001C                 EXPORT           __heap_limit
+  583 0000001C         
+  584 0000001C                 ELSE
+  598                          ENDIF
+  599 0000001C         
+  600 0000001C         
+  601 0000001C                 END
+              00000000 
+              00000000 
+Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4.fp.sp --apcs=
+interwork --depend=.\output\debug\startup_hc32f4a0sitb.d -o.\output\debug\start
+up_hc32f4a0sitb.o -I.\RTE\_HC32F4A0SITB_Template -IC:\Users\JC\AppData\Local\Ar
+m\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include -IC:\Users\JC\AppData\Local\Arm\Pack
+s\HDSC\HC32F4A0\1.0.4\Device\Include --predefine="__MICROLIB SETA 1" --predefin
+e="__UVISION_VERSION SETA 531" --predefine="_RTE_ SETA 1" --predefine="_RTE_ SE
+TA 1" --list=.\output\debug\startup_hc32f4a0sitb.lst ..\..\User\startup_hc32f4a
+0sitb.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+STACK 00000000
+
+Symbol: STACK
+   Definitions
+      At line 22 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      None
+Comment: STACK unused
+Stack_Mem 00000000
+
+Symbol: Stack_Mem
+   Definitions
+      At line 23 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      None
+Comment: Stack_Mem unused
+__initial_sp 00004000
+
+Symbol: __initial_sp
+   Definitions
+      At line 24 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 49 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 580 in file ..\..\User\startup_hc32f4a0sitb.s
+
+3 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+HEAP 00000000
+
+Symbol: HEAP
+   Definitions
+      At line 32 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      None
+Comment: HEAP unused
+Heap_Mem 00000000
+
+Symbol: Heap_Mem
+   Definitions
+      At line 34 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      None
+Comment: Heap_Mem unused
+__heap_base 00000000
+
+Symbol: __heap_base
+   Definitions
+      At line 33 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 581 in file ..\..\User\startup_hc32f4a0sitb.s
+Comment: __heap_base used once
+__heap_limit 00002000
+
+Symbol: __heap_limit
+   Definitions
+      At line 35 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 582 in file ..\..\User\startup_hc32f4a0sitb.s
+Comment: __heap_limit used once
+4 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+RESET 00000000
+
+Symbol: RESET
+   Definitions
+      At line 44 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      None
+Comment: RESET unused
+__Vectors 00000000
+
+Symbol: __Vectors
+   Definitions
+      At line 49 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 45 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 213 in file ..\..\User\startup_hc32f4a0sitb.s
+
+__Vectors_End 00000280
+
+Symbol: __Vectors_End
+   Definitions
+      At line 211 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 46 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 213 in file ..\..\User\startup_hc32f4a0sitb.s
+
+3 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+.text 00000000
+
+Symbol: .text
+   Definitions
+      At line 215 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      None
+Comment: .text unused
+BusFault_Handler 0000000E
+
+Symbol: BusFault_Handler
+   Definitions
+      At line 249 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 54 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 250 in file ..\..\User\startup_hc32f4a0sitb.s
+
+DebugMon_Handler 00000014
+
+Symbol: DebugMon_Handler
+   Definitions
+      At line 263 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 61 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 264 in file ..\..\User\startup_hc32f4a0sitb.s
+
+Default_Handler 0000001A
+
+Symbol: Default_Handler
+   Definitions
+      At line 278 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      None
+Comment: Default_Handler unused
+HardFault_Handler 0000000A
+
+Symbol: HardFault_Handler
+   Definitions
+      At line 239 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 52 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 240 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ000_Handler 0000001A
+
+Symbol: IRQ000_Handler
+   Definitions
+      At line 424 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 66 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 279 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ001_Handler 0000001A
+
+Symbol: IRQ001_Handler
+   Definitions
+      At line 425 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 67 in file ..\..\User\startup_hc32f4a0sitb.s
+
+
+
+ARM Macro Assembler    Page 2 Alphabetic symbol ordering
+Relocatable symbols
+
+      At line 280 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ002_Handler 0000001A
+
+Symbol: IRQ002_Handler
+   Definitions
+      At line 426 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 68 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 281 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ003_Handler 0000001A
+
+Symbol: IRQ003_Handler
+   Definitions
+      At line 427 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 69 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 282 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ004_Handler 0000001A
+
+Symbol: IRQ004_Handler
+   Definitions
+      At line 428 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 70 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 283 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ005_Handler 0000001A
+
+Symbol: IRQ005_Handler
+   Definitions
+      At line 429 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 71 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 284 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ006_Handler 0000001A
+
+Symbol: IRQ006_Handler
+   Definitions
+      At line 430 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 72 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 285 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ007_Handler 0000001A
+
+Symbol: IRQ007_Handler
+   Definitions
+      At line 431 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 73 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 286 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ008_Handler 0000001A
+
+Symbol: IRQ008_Handler
+
+
+
+ARM Macro Assembler    Page 3 Alphabetic symbol ordering
+Relocatable symbols
+
+   Definitions
+      At line 432 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 74 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 287 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ009_Handler 0000001A
+
+Symbol: IRQ009_Handler
+   Definitions
+      At line 433 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 75 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 288 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ010_Handler 0000001A
+
+Symbol: IRQ010_Handler
+   Definitions
+      At line 434 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 76 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 289 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ011_Handler 0000001A
+
+Symbol: IRQ011_Handler
+   Definitions
+      At line 435 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 77 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 290 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ012_Handler 0000001A
+
+Symbol: IRQ012_Handler
+   Definitions
+      At line 436 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 78 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 291 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ013_Handler 0000001A
+
+Symbol: IRQ013_Handler
+   Definitions
+      At line 437 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 79 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 292 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ014_Handler 0000001A
+
+Symbol: IRQ014_Handler
+   Definitions
+      At line 438 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 80 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 293 in file ..\..\User\startup_hc32f4a0sitb.s
+
+
+
+ARM Macro Assembler    Page 4 Alphabetic symbol ordering
+Relocatable symbols
+
+
+IRQ015_Handler 0000001A
+
+Symbol: IRQ015_Handler
+   Definitions
+      At line 439 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 81 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 294 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ016_Handler 0000001A
+
+Symbol: IRQ016_Handler
+   Definitions
+      At line 440 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 82 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 295 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ017_Handler 0000001A
+
+Symbol: IRQ017_Handler
+   Definitions
+      At line 441 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 83 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 296 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ018_Handler 0000001A
+
+Symbol: IRQ018_Handler
+   Definitions
+      At line 442 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 84 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 297 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ019_Handler 0000001A
+
+Symbol: IRQ019_Handler
+   Definitions
+      At line 443 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 85 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 298 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ020_Handler 0000001A
+
+Symbol: IRQ020_Handler
+   Definitions
+      At line 444 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 86 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 299 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ021_Handler 0000001A
+
+Symbol: IRQ021_Handler
+   Definitions
+
+
+
+ARM Macro Assembler    Page 5 Alphabetic symbol ordering
+Relocatable symbols
+
+      At line 445 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 87 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 300 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ022_Handler 0000001A
+
+Symbol: IRQ022_Handler
+   Definitions
+      At line 446 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 88 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 301 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ023_Handler 0000001A
+
+Symbol: IRQ023_Handler
+   Definitions
+      At line 447 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 89 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 302 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ024_Handler 0000001A
+
+Symbol: IRQ024_Handler
+   Definitions
+      At line 448 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 90 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 303 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ025_Handler 0000001A
+
+Symbol: IRQ025_Handler
+   Definitions
+      At line 449 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 91 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 304 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ026_Handler 0000001A
+
+Symbol: IRQ026_Handler
+   Definitions
+      At line 450 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 92 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 305 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ027_Handler 0000001A
+
+Symbol: IRQ027_Handler
+   Definitions
+      At line 451 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 93 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 306 in file ..\..\User\startup_hc32f4a0sitb.s
+
+
+
+
+ARM Macro Assembler    Page 6 Alphabetic symbol ordering
+Relocatable symbols
+
+IRQ028_Handler 0000001A
+
+Symbol: IRQ028_Handler
+   Definitions
+      At line 452 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 94 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 307 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ029_Handler 0000001A
+
+Symbol: IRQ029_Handler
+   Definitions
+      At line 453 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 95 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 308 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ030_Handler 0000001A
+
+Symbol: IRQ030_Handler
+   Definitions
+      At line 454 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 96 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 309 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ031_Handler 0000001A
+
+Symbol: IRQ031_Handler
+   Definitions
+      At line 455 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 97 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 310 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ032_Handler 0000001A
+
+Symbol: IRQ032_Handler
+   Definitions
+      At line 456 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 98 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 311 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ033_Handler 0000001A
+
+Symbol: IRQ033_Handler
+   Definitions
+      At line 457 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 99 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 312 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ034_Handler 0000001A
+
+Symbol: IRQ034_Handler
+   Definitions
+      At line 458 in file ..\..\User\startup_hc32f4a0sitb.s
+
+
+
+ARM Macro Assembler    Page 7 Alphabetic symbol ordering
+Relocatable symbols
+
+   Uses
+      At line 100 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 313 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ035_Handler 0000001A
+
+Symbol: IRQ035_Handler
+   Definitions
+      At line 459 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 101 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 314 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ036_Handler 0000001A
+
+Symbol: IRQ036_Handler
+   Definitions
+      At line 460 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 102 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 315 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ037_Handler 0000001A
+
+Symbol: IRQ037_Handler
+   Definitions
+      At line 461 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 103 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 316 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ038_Handler 0000001A
+
+Symbol: IRQ038_Handler
+   Definitions
+      At line 462 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 104 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 317 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ039_Handler 0000001A
+
+Symbol: IRQ039_Handler
+   Definitions
+      At line 463 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 105 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 318 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ040_Handler 0000001A
+
+Symbol: IRQ040_Handler
+   Definitions
+      At line 464 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 106 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 319 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ041_Handler 0000001A
+
+
+
+ARM Macro Assembler    Page 8 Alphabetic symbol ordering
+Relocatable symbols
+
+
+Symbol: IRQ041_Handler
+   Definitions
+      At line 465 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 107 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 320 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ042_Handler 0000001A
+
+Symbol: IRQ042_Handler
+   Definitions
+      At line 466 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 108 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 321 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ043_Handler 0000001A
+
+Symbol: IRQ043_Handler
+   Definitions
+      At line 467 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 109 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 322 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ044_Handler 0000001A
+
+Symbol: IRQ044_Handler
+   Definitions
+      At line 468 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 110 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 323 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ045_Handler 0000001A
+
+Symbol: IRQ045_Handler
+   Definitions
+      At line 469 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 111 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 324 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ046_Handler 0000001A
+
+Symbol: IRQ046_Handler
+   Definitions
+      At line 470 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 112 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 325 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ047_Handler 0000001A
+
+Symbol: IRQ047_Handler
+   Definitions
+      At line 471 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+
+
+
+ARM Macro Assembler    Page 9 Alphabetic symbol ordering
+Relocatable symbols
+
+      At line 113 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 326 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ048_Handler 0000001A
+
+Symbol: IRQ048_Handler
+   Definitions
+      At line 472 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 114 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 327 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ049_Handler 0000001A
+
+Symbol: IRQ049_Handler
+   Definitions
+      At line 473 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 115 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 328 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ050_Handler 0000001A
+
+Symbol: IRQ050_Handler
+   Definitions
+      At line 474 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 116 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 329 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ051_Handler 0000001A
+
+Symbol: IRQ051_Handler
+   Definitions
+      At line 475 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 117 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 330 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ052_Handler 0000001A
+
+Symbol: IRQ052_Handler
+   Definitions
+      At line 476 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 118 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 331 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ053_Handler 0000001A
+
+Symbol: IRQ053_Handler
+   Definitions
+      At line 477 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 119 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 332 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ054_Handler 0000001A
+
+
+
+
+ARM Macro Assembler    Page 10 Alphabetic symbol ordering
+Relocatable symbols
+
+Symbol: IRQ054_Handler
+   Definitions
+      At line 478 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 120 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 333 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ055_Handler 0000001A
+
+Symbol: IRQ055_Handler
+   Definitions
+      At line 479 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 121 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 334 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ056_Handler 0000001A
+
+Symbol: IRQ056_Handler
+   Definitions
+      At line 480 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 122 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 335 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ057_Handler 0000001A
+
+Symbol: IRQ057_Handler
+   Definitions
+      At line 481 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 123 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 336 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ058_Handler 0000001A
+
+Symbol: IRQ058_Handler
+   Definitions
+      At line 482 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 124 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 337 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ059_Handler 0000001A
+
+Symbol: IRQ059_Handler
+   Definitions
+      At line 483 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 125 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 338 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ060_Handler 0000001A
+
+Symbol: IRQ060_Handler
+   Definitions
+      At line 484 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 126 in file ..\..\User\startup_hc32f4a0sitb.s
+
+
+
+ARM Macro Assembler    Page 11 Alphabetic symbol ordering
+Relocatable symbols
+
+      At line 339 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ061_Handler 0000001A
+
+Symbol: IRQ061_Handler
+   Definitions
+      At line 485 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 127 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 340 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ062_Handler 0000001A
+
+Symbol: IRQ062_Handler
+   Definitions
+      At line 486 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 128 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 341 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ063_Handler 0000001A
+
+Symbol: IRQ063_Handler
+   Definitions
+      At line 487 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 129 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 342 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ064_Handler 0000001A
+
+Symbol: IRQ064_Handler
+   Definitions
+      At line 488 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 130 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 343 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ065_Handler 0000001A
+
+Symbol: IRQ065_Handler
+   Definitions
+      At line 489 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 131 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 344 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ066_Handler 0000001A
+
+Symbol: IRQ066_Handler
+   Definitions
+      At line 490 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 132 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 345 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ067_Handler 0000001A
+
+Symbol: IRQ067_Handler
+
+
+
+ARM Macro Assembler    Page 12 Alphabetic symbol ordering
+Relocatable symbols
+
+   Definitions
+      At line 491 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 133 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 346 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ068_Handler 0000001A
+
+Symbol: IRQ068_Handler
+   Definitions
+      At line 492 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 134 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 347 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ069_Handler 0000001A
+
+Symbol: IRQ069_Handler
+   Definitions
+      At line 493 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 135 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 348 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ070_Handler 0000001A
+
+Symbol: IRQ070_Handler
+   Definitions
+      At line 494 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 136 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 349 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ071_Handler 0000001A
+
+Symbol: IRQ071_Handler
+   Definitions
+      At line 495 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 137 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 350 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ072_Handler 0000001A
+
+Symbol: IRQ072_Handler
+   Definitions
+      At line 496 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 138 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 351 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ073_Handler 0000001A
+
+Symbol: IRQ073_Handler
+   Definitions
+      At line 497 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 139 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 352 in file ..\..\User\startup_hc32f4a0sitb.s
+
+
+
+ARM Macro Assembler    Page 13 Alphabetic symbol ordering
+Relocatable symbols
+
+
+IRQ074_Handler 0000001A
+
+Symbol: IRQ074_Handler
+   Definitions
+      At line 498 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 140 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 353 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ075_Handler 0000001A
+
+Symbol: IRQ075_Handler
+   Definitions
+      At line 499 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 141 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 354 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ076_Handler 0000001A
+
+Symbol: IRQ076_Handler
+   Definitions
+      At line 500 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 142 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 355 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ077_Handler 0000001A
+
+Symbol: IRQ077_Handler
+   Definitions
+      At line 501 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 143 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 356 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ078_Handler 0000001A
+
+Symbol: IRQ078_Handler
+   Definitions
+      At line 502 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 144 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 357 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ079_Handler 0000001A
+
+Symbol: IRQ079_Handler
+   Definitions
+      At line 503 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 145 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 358 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ080_Handler 0000001A
+
+Symbol: IRQ080_Handler
+   Definitions
+
+
+
+ARM Macro Assembler    Page 14 Alphabetic symbol ordering
+Relocatable symbols
+
+      At line 504 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 146 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 359 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ081_Handler 0000001A
+
+Symbol: IRQ081_Handler
+   Definitions
+      At line 505 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 147 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 360 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ082_Handler 0000001A
+
+Symbol: IRQ082_Handler
+   Definitions
+      At line 506 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 148 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 361 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ083_Handler 0000001A
+
+Symbol: IRQ083_Handler
+   Definitions
+      At line 507 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 149 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 362 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ084_Handler 0000001A
+
+Symbol: IRQ084_Handler
+   Definitions
+      At line 508 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 150 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 363 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ085_Handler 0000001A
+
+Symbol: IRQ085_Handler
+   Definitions
+      At line 509 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 151 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 364 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ086_Handler 0000001A
+
+Symbol: IRQ086_Handler
+   Definitions
+      At line 510 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 152 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 365 in file ..\..\User\startup_hc32f4a0sitb.s
+
+
+
+
+ARM Macro Assembler    Page 15 Alphabetic symbol ordering
+Relocatable symbols
+
+IRQ087_Handler 0000001A
+
+Symbol: IRQ087_Handler
+   Definitions
+      At line 511 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 153 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 366 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ088_Handler 0000001A
+
+Symbol: IRQ088_Handler
+   Definitions
+      At line 512 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 154 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 367 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ089_Handler 0000001A
+
+Symbol: IRQ089_Handler
+   Definitions
+      At line 513 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 155 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 368 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ090_Handler 0000001A
+
+Symbol: IRQ090_Handler
+   Definitions
+      At line 514 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 156 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 369 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ091_Handler 0000001A
+
+Symbol: IRQ091_Handler
+   Definitions
+      At line 515 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 157 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 370 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ092_Handler 0000001A
+
+Symbol: IRQ092_Handler
+   Definitions
+      At line 516 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 158 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 371 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ093_Handler 0000001A
+
+Symbol: IRQ093_Handler
+   Definitions
+      At line 517 in file ..\..\User\startup_hc32f4a0sitb.s
+
+
+
+ARM Macro Assembler    Page 16 Alphabetic symbol ordering
+Relocatable symbols
+
+   Uses
+      At line 159 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 372 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ094_Handler 0000001A
+
+Symbol: IRQ094_Handler
+   Definitions
+      At line 518 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 160 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 373 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ095_Handler 0000001A
+
+Symbol: IRQ095_Handler
+   Definitions
+      At line 519 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 161 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 374 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ096_Handler 0000001A
+
+Symbol: IRQ096_Handler
+   Definitions
+      At line 520 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 162 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 375 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ097_Handler 0000001A
+
+Symbol: IRQ097_Handler
+   Definitions
+      At line 521 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 163 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 376 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ098_Handler 0000001A
+
+Symbol: IRQ098_Handler
+   Definitions
+      At line 522 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 164 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 377 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ099_Handler 0000001A
+
+Symbol: IRQ099_Handler
+   Definitions
+      At line 523 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 165 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 378 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ100_Handler 0000001A
+
+
+
+ARM Macro Assembler    Page 17 Alphabetic symbol ordering
+Relocatable symbols
+
+
+Symbol: IRQ100_Handler
+   Definitions
+      At line 524 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 166 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 379 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ101_Handler 0000001A
+
+Symbol: IRQ101_Handler
+   Definitions
+      At line 525 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 167 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 380 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ102_Handler 0000001A
+
+Symbol: IRQ102_Handler
+   Definitions
+      At line 526 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 168 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 381 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ103_Handler 0000001A
+
+Symbol: IRQ103_Handler
+   Definitions
+      At line 527 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 169 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 382 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ104_Handler 0000001A
+
+Symbol: IRQ104_Handler
+   Definitions
+      At line 528 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 170 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 383 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ105_Handler 0000001A
+
+Symbol: IRQ105_Handler
+   Definitions
+      At line 529 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 171 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 384 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ106_Handler 0000001A
+
+Symbol: IRQ106_Handler
+   Definitions
+      At line 530 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+
+
+
+ARM Macro Assembler    Page 18 Alphabetic symbol ordering
+Relocatable symbols
+
+      At line 172 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 385 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ107_Handler 0000001A
+
+Symbol: IRQ107_Handler
+   Definitions
+      At line 531 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 173 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 386 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ108_Handler 0000001A
+
+Symbol: IRQ108_Handler
+   Definitions
+      At line 532 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 174 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 387 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ109_Handler 0000001A
+
+Symbol: IRQ109_Handler
+   Definitions
+      At line 533 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 175 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 388 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ110_Handler 0000001A
+
+Symbol: IRQ110_Handler
+   Definitions
+      At line 534 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 176 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 389 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ111_Handler 0000001A
+
+Symbol: IRQ111_Handler
+   Definitions
+      At line 535 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 177 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 390 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ112_Handler 0000001A
+
+Symbol: IRQ112_Handler
+   Definitions
+      At line 536 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 178 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 391 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ113_Handler 0000001A
+
+
+
+
+ARM Macro Assembler    Page 19 Alphabetic symbol ordering
+Relocatable symbols
+
+Symbol: IRQ113_Handler
+   Definitions
+      At line 537 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 179 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 392 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ114_Handler 0000001A
+
+Symbol: IRQ114_Handler
+   Definitions
+      At line 538 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 180 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 393 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ115_Handler 0000001A
+
+Symbol: IRQ115_Handler
+   Definitions
+      At line 539 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 181 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 394 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ116_Handler 0000001A
+
+Symbol: IRQ116_Handler
+   Definitions
+      At line 540 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 182 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 395 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ117_Handler 0000001A
+
+Symbol: IRQ117_Handler
+   Definitions
+      At line 541 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 183 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 396 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ118_Handler 0000001A
+
+Symbol: IRQ118_Handler
+   Definitions
+      At line 542 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 184 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 397 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ119_Handler 0000001A
+
+Symbol: IRQ119_Handler
+   Definitions
+      At line 543 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 185 in file ..\..\User\startup_hc32f4a0sitb.s
+
+
+
+ARM Macro Assembler    Page 20 Alphabetic symbol ordering
+Relocatable symbols
+
+      At line 398 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ120_Handler 0000001A
+
+Symbol: IRQ120_Handler
+   Definitions
+      At line 544 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 186 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 399 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ121_Handler 0000001A
+
+Symbol: IRQ121_Handler
+   Definitions
+      At line 545 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 187 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 400 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ122_Handler 0000001A
+
+Symbol: IRQ122_Handler
+   Definitions
+      At line 546 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 188 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 401 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ123_Handler 0000001A
+
+Symbol: IRQ123_Handler
+   Definitions
+      At line 547 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 189 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 402 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ124_Handler 0000001A
+
+Symbol: IRQ124_Handler
+   Definitions
+      At line 548 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 190 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 403 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ125_Handler 0000001A
+
+Symbol: IRQ125_Handler
+   Definitions
+      At line 549 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 191 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 404 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ126_Handler 0000001A
+
+Symbol: IRQ126_Handler
+
+
+
+ARM Macro Assembler    Page 21 Alphabetic symbol ordering
+Relocatable symbols
+
+   Definitions
+      At line 550 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 192 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 405 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ127_Handler 0000001A
+
+Symbol: IRQ127_Handler
+   Definitions
+      At line 551 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 193 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 406 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ128_Handler 0000001A
+
+Symbol: IRQ128_Handler
+   Definitions
+      At line 552 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 194 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 407 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ129_Handler 0000001A
+
+Symbol: IRQ129_Handler
+   Definitions
+      At line 553 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 195 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 408 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ130_Handler 0000001A
+
+Symbol: IRQ130_Handler
+   Definitions
+      At line 554 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 196 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 409 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ131_Handler 0000001A
+
+Symbol: IRQ131_Handler
+   Definitions
+      At line 555 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 197 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 410 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ132_Handler 0000001A
+
+Symbol: IRQ132_Handler
+   Definitions
+      At line 556 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 198 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 411 in file ..\..\User\startup_hc32f4a0sitb.s
+
+
+
+ARM Macro Assembler    Page 22 Alphabetic symbol ordering
+Relocatable symbols
+
+
+IRQ133_Handler 0000001A
+
+Symbol: IRQ133_Handler
+   Definitions
+      At line 557 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 199 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 412 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ134_Handler 0000001A
+
+Symbol: IRQ134_Handler
+   Definitions
+      At line 558 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 200 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 413 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ135_Handler 0000001A
+
+Symbol: IRQ135_Handler
+   Definitions
+      At line 559 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 201 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 414 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ136_Handler 0000001A
+
+Symbol: IRQ136_Handler
+   Definitions
+      At line 560 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 202 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 415 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ137_Handler 0000001A
+
+Symbol: IRQ137_Handler
+   Definitions
+      At line 561 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 203 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 416 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ138_Handler 0000001A
+
+Symbol: IRQ138_Handler
+   Definitions
+      At line 562 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 204 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 417 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ139_Handler 0000001A
+
+Symbol: IRQ139_Handler
+   Definitions
+
+
+
+ARM Macro Assembler    Page 23 Alphabetic symbol ordering
+Relocatable symbols
+
+      At line 563 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 205 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 418 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ140_Handler 0000001A
+
+Symbol: IRQ140_Handler
+   Definitions
+      At line 564 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 206 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 419 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ141_Handler 0000001A
+
+Symbol: IRQ141_Handler
+   Definitions
+      At line 565 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 207 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 420 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ142_Handler 0000001A
+
+Symbol: IRQ142_Handler
+   Definitions
+      At line 566 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 208 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 421 in file ..\..\User\startup_hc32f4a0sitb.s
+
+IRQ143_Handler 0000001A
+
+Symbol: IRQ143_Handler
+   Definitions
+      At line 567 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 209 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 422 in file ..\..\User\startup_hc32f4a0sitb.s
+
+MemManage_Handler 0000000C
+
+Symbol: MemManage_Handler
+   Definitions
+      At line 244 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 53 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 245 in file ..\..\User\startup_hc32f4a0sitb.s
+
+NMI_Handler 00000008
+
+Symbol: NMI_Handler
+   Definitions
+      At line 234 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 51 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 235 in file ..\..\User\startup_hc32f4a0sitb.s
+
+
+
+
+ARM Macro Assembler    Page 24 Alphabetic symbol ordering
+Relocatable symbols
+
+PendSV_Handler 00000016
+
+Symbol: PendSV_Handler
+   Definitions
+      At line 268 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 63 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 269 in file ..\..\User\startup_hc32f4a0sitb.s
+
+Reset_Handler 00000000
+
+Symbol: Reset_Handler
+   Definitions
+      At line 220 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 50 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 221 in file ..\..\User\startup_hc32f4a0sitb.s
+
+SVC_Handler 00000012
+
+Symbol: SVC_Handler
+   Definitions
+      At line 258 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 60 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 259 in file ..\..\User\startup_hc32f4a0sitb.s
+
+SysTick_Handler 00000018
+
+Symbol: SysTick_Handler
+   Definitions
+      At line 273 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 64 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 274 in file ..\..\User\startup_hc32f4a0sitb.s
+
+UsageFault_Handler 00000010
+
+Symbol: UsageFault_Handler
+   Definitions
+      At line 254 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 55 in file ..\..\User\startup_hc32f4a0sitb.s
+      At line 255 in file ..\..\User\startup_hc32f4a0sitb.s
+
+156 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Absolute symbols
+
+Heap_Size 00002000
+
+Symbol: Heap_Size
+   Definitions
+      At line 30 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 34 in file ..\..\User\startup_hc32f4a0sitb.s
+Comment: Heap_Size used once
+Stack_Size 00004000
+
+Symbol: Stack_Size
+   Definitions
+      At line 20 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 23 in file ..\..\User\startup_hc32f4a0sitb.s
+Comment: Stack_Size used once
+__Vectors_Size 00000280
+
+Symbol: __Vectors_Size
+   Definitions
+      At line 213 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 47 in file ..\..\User\startup_hc32f4a0sitb.s
+Comment: __Vectors_Size used once
+3 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+External symbols
+
+SystemInit 00000000
+
+Symbol: SystemInit
+   Definitions
+      At line 222 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 225 in file ..\..\User\startup_hc32f4a0sitb.s
+Comment: SystemInit used once
+__main 00000000
+
+Symbol: __main
+   Definitions
+      At line 223 in file ..\..\User\startup_hc32f4a0sitb.s
+   Uses
+      At line 227 in file ..\..\User\startup_hc32f4a0sitb.s
+Comment: __main used once
+2 symbols
+507 symbols in table

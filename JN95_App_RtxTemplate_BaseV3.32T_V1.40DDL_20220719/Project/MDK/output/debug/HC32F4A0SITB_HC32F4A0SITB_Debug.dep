@@ -1,0 +1,84 @@
+Dependencies for Project 'HC32F4A0SITB', Target 'HC32F4A0SITB_Debug': (DO NOT MODIFY !)
+CompilerVersion: 5060960::V5.06 update 7 (build 960)::.\ARMCC
+F (.\startup_hc32f4a0sitb.s)(0x600A74EA)(--cpu Cortex-M4 --li -g --apcs=interwork --pd "__MICROLIB SETA 1"-I.\RTE\_HC32F4A0SITB_Debug-IE:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IE:\MDK\HDSC\HC32F4A0\1.0.4\Device\Include--pd "__UVISION_VERSION SETA 532" --pd "_RTE_ SETA 1" --pd "_RTE_ SETA 1"--list .\output\debug\startup_hc32f4a0sitb.lst --xref -o .\output\debug\startup_hc32f4a0sitb.o --depend .\output\debug\startup_hc32f4a0sitb.d)
+F (..\..\common\system_hc32f4a0sitb.c)(0x600A74EA)(--c99 -c --cpu Cortex-M4 -D__MICROLIB --li -g -O0 --apcs=interwork --split_sections -I ..\..\common -I ..\source -I ..\..\driver\inc --diag_suppress=186,66-I.\RTE\_HC32F4A0SITB_Debug-IE:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IE:\MDK\HDSC\HC32F4A0\1.0.4\Device\Include-D__UVISION_VERSION="532" -D_RTE_ -D_RTE_ -D__DEBUG -DHC32F4A0 -DUSE_DDL_DRIVER-o .\output\debug\system_hc32f4a0sitb.o --omf_browse .\output\debug\system_hc32f4a0sitb.crf --depend .\output\debug\system_hc32f4a0sitb.d)
+I (..\..\common\hc32_common.h)(0x600A74EA)
+I (E:\Keil5 SetUp\ARM\ARMCC\include\stddef.h)(0x5F63877C)
+I (..\..\common\hc32f4a0sitb.h)(0x600A74EA)
+I (E:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\core_cm4.h)(0x5E8ED122)
+I (E:\Keil5 SetUp\ARM\ARMCC\include\stdint.h)(0x5F63877C)
+I (E:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_version.h)(0x5E8ED122)
+I (E:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_compiler.h)(0x5E8306C2)
+I (E:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_armcc.h)(0x5E8ED122)
+I (E:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\mpu_armv7.h)(0x5E8ED122)
+I (..\..\common\system_hc32f4a0sitb.h)(0x600A74EA)
+F (..\source\main.c)(0x6139CCCB)(--c99 -c --cpu Cortex-M4 -D__MICROLIB --li -g -O0 --apcs=interwork --split_sections -I ..\..\common -I ..\source -I ..\..\driver\inc --diag_suppress=186,66-I.\RTE\_HC32F4A0SITB_Debug-IE:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IE:\MDK\HDSC\HC32F4A0\1.0.4\Device\Include-D__UVISION_VERSION="532" -D_RTE_ -D_RTE_ -D__DEBUG -DHC32F4A0 -DUSE_DDL_DRIVER-o .\output\debug\main.o --omf_browse .\output\debug\main.crf --depend .\output\debug\main.d)
+I (..\..\common\hc32_ddl.h)(0x6139CAD7)
+I (..\..\common\hc32_common.h)(0x600A74EA)
+I (E:\Keil5 SetUp\ARM\ARMCC\include\stddef.h)(0x5F63877C)
+I (..\..\common\hc32f4a0sitb.h)(0x600A74EA)
+I (E:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\core_cm4.h)(0x5E8ED122)
+I (E:\Keil5 SetUp\ARM\ARMCC\include\stdint.h)(0x5F63877C)
+I (E:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_version.h)(0x5E8ED122)
+I (E:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_compiler.h)(0x5E8306C2)
+I (E:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_armcc.h)(0x5E8ED122)
+I (E:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\mpu_armv7.h)(0x5E8ED122)
+I (..\..\common\system_hc32f4a0sitb.h)(0x600A74EA)
+I (..\source\ddl_config.h)(0x6139C9EA)
+I (..\..\driver\inc\hc32f4a0_gpio.h)(0x600FAD12)
+I (..\..\driver\inc\hc32f4a0_icg.h)(0x5FDC1A00)
+I (..\..\driver\inc\hc32f4a0_utility.h)(0x5FDC1A00)
+F (..\..\driver\src\hc32f4a0_gpio.c)(0x5FDC19FF)(--c99 -c --cpu Cortex-M4 -D__MICROLIB --li -g -O0 --apcs=interwork --split_sections -I ..\..\common -I ..\source -I ..\..\driver\inc --diag_suppress=186,66-I.\RTE\_HC32F4A0SITB_Debug-IE:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IE:\MDK\HDSC\HC32F4A0\1.0.4\Device\Include-D__UVISION_VERSION="532" -D_RTE_ -D_RTE_ -D__DEBUG -DHC32F4A0 -DUSE_DDL_DRIVER-o .\output\debug\hc32f4a0_gpio.o --omf_browse .\output\debug\hc32f4a0_gpio.crf --depend .\output\debug\hc32f4a0_gpio.d)
+I (..\..\driver\inc\hc32f4a0_gpio.h)(0x600FAD12)
+I (..\..\common\hc32_common.h)(0x600A74EA)
+I (E:\Keil5 SetUp\ARM\ARMCC\include\stddef.h)(0x5F63877C)
+I (..\..\common\hc32f4a0sitb.h)(0x600A74EA)
+I (E:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\core_cm4.h)(0x5E8ED122)
+I (E:\Keil5 SetUp\ARM\ARMCC\include\stdint.h)(0x5F63877C)
+I (E:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_version.h)(0x5E8ED122)
+I (E:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_compiler.h)(0x5E8306C2)
+I (E:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_armcc.h)(0x5E8ED122)
+I (E:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\mpu_armv7.h)(0x5E8ED122)
+I (..\..\common\system_hc32f4a0sitb.h)(0x600A74EA)
+I (..\source\ddl_config.h)(0x6139C9EA)
+I (..\..\driver\inc\hc32f4a0_utility.h)(0x5FDC1A00)
+F (..\..\driver\src\hc32f4a0_utility.c)(0x5FDC19FF)(--c99 -c --cpu Cortex-M4 -D__MICROLIB --li -g -O0 --apcs=interwork --split_sections -I ..\..\common -I ..\source -I ..\..\driver\inc --diag_suppress=186,66-I.\RTE\_HC32F4A0SITB_Debug-IE:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IE:\MDK\HDSC\HC32F4A0\1.0.4\Device\Include-D__UVISION_VERSION="532" -D_RTE_ -D_RTE_ -D__DEBUG -DHC32F4A0 -DUSE_DDL_DRIVER-o .\output\debug\hc32f4a0_utility.o --omf_browse .\output\debug\hc32f4a0_utility.crf --depend .\output\debug\hc32f4a0_utility.d)
+I (..\..\driver\inc\hc32f4a0_utility.h)(0x5FDC1A00)
+I (..\..\common\hc32_common.h)(0x600A74EA)
+I (E:\Keil5 SetUp\ARM\ARMCC\include\stddef.h)(0x5F63877C)
+I (..\..\common\hc32f4a0sitb.h)(0x600A74EA)
+I (E:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\core_cm4.h)(0x5E8ED122)
+I (E:\Keil5 SetUp\ARM\ARMCC\include\stdint.h)(0x5F63877C)
+I (E:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_version.h)(0x5E8ED122)
+I (E:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_compiler.h)(0x5E8306C2)
+I (E:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_armcc.h)(0x5E8ED122)
+I (E:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\mpu_armv7.h)(0x5E8ED122)
+I (..\..\common\system_hc32f4a0sitb.h)(0x600A74EA)
+I (..\source\ddl_config.h)(0x6139C9EA)
+F (..\..\driver\src\hc32f4a0_wdt.c)(0x5FDC19FF)(--c99 -c --cpu Cortex-M4 -D__MICROLIB --li -g -O0 --apcs=interwork --split_sections -I ..\..\common -I ..\source -I ..\..\driver\inc --diag_suppress=186,66-I.\RTE\_HC32F4A0SITB_Debug-IE:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IE:\MDK\HDSC\HC32F4A0\1.0.4\Device\Include-D__UVISION_VERSION="532" -D_RTE_ -D_RTE_ -D__DEBUG -DHC32F4A0 -DUSE_DDL_DRIVER-o .\output\debug\hc32f4a0_wdt.o --omf_browse .\output\debug\hc32f4a0_wdt.crf --depend .\output\debug\hc32f4a0_wdt.d)
+I (..\..\driver\inc\hc32f4a0_wdt.h)(0x5FDC1A00)
+I (..\..\common\hc32_common.h)(0x600A74EA)
+I (E:\Keil5 SetUp\ARM\ARMCC\include\stddef.h)(0x5F63877C)
+I (..\..\common\hc32f4a0sitb.h)(0x600A74EA)
+I (E:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\core_cm4.h)(0x5E8ED122)
+I (E:\Keil5 SetUp\ARM\ARMCC\include\stdint.h)(0x5F63877C)
+I (E:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_version.h)(0x5E8ED122)
+I (E:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_compiler.h)(0x5E8306C2)
+I (E:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_armcc.h)(0x5E8ED122)
+I (E:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\mpu_armv7.h)(0x5E8ED122)
+I (..\..\common\system_hc32f4a0sitb.h)(0x600A74EA)
+I (..\source\ddl_config.h)(0x6139C9EA)
+I (..\..\driver\inc\hc32f4a0_utility.h)(0x5FDC1A00)
+F (..\..\driver\src\hc32f4a0_icg.c)(0x5FDC19FF)(--c99 -c --cpu Cortex-M4 -D__MICROLIB --li -g -O0 --apcs=interwork --split_sections -I ..\..\common -I ..\source -I ..\..\driver\inc --diag_suppress=186,66-I.\RTE\_HC32F4A0SITB_Debug-IE:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IE:\MDK\HDSC\HC32F4A0\1.0.4\Device\Include-D__UVISION_VERSION="532" -D_RTE_ -D_RTE_ -D__DEBUG -DHC32F4A0 -DUSE_DDL_DRIVER-o .\output\debug\hc32f4a0_icg.o --omf_browse .\output\debug\hc32f4a0_icg.crf --depend .\output\debug\hc32f4a0_icg.d)
+I (..\..\driver\inc\hc32f4a0_icg.h)(0x5FDC1A00)
+I (..\..\common\hc32_common.h)(0x600A74EA)
+I (E:\Keil5 SetUp\ARM\ARMCC\include\stddef.h)(0x5F63877C)
+I (..\..\common\hc32f4a0sitb.h)(0x600A74EA)
+I (E:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\core_cm4.h)(0x5E8ED122)
+I (E:\Keil5 SetUp\ARM\ARMCC\include\stdint.h)(0x5F63877C)
+I (E:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_version.h)(0x5E8ED122)
+I (E:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_compiler.h)(0x5E8306C2)
+I (E:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_armcc.h)(0x5E8ED122)
+I (E:\MDK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\mpu_armv7.h)(0x5E8ED122)
+I (..\..\common\system_hc32f4a0sitb.h)(0x600A74EA)
+I (..\source\ddl_config.h)(0x6139C9EA)

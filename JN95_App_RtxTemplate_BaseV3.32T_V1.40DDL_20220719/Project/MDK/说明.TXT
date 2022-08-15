@@ -1,0 +1,5 @@
+/*本文件仅用于模板使用说明*/
+/*1.该模板使用V1.40DDL驱动库*/
+/*2.该模板使用CMSIS2接口+RTX5操作系统*/
+/*3.每次打开工程，请将RTE_Components.h文件17行的#define CMSIS_device_header "HC32F4A0SITB.h"替换成\
+#define CMSIS_device_header "HC32_COMMON.h"再做编译*/

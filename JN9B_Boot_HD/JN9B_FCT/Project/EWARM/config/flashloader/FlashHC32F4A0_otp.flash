@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<flash_device>
+  <exe>$PROJ_DIR$\flashloader\FlashHC32F4A0_otp.out</exe>
+  <page>4</page>
+  <block>1 0x1ADC</block>
+  <flash_base>0X03000000</flash_base>
+  <macro>$PROJ_DIR$\flashloader\FlashHC32F4A0.mac</macro>
+  <aggregate>0</aggregate>
+</flash_device>

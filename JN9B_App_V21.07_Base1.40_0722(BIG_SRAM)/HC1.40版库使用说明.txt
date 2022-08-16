@@ -1,0 +1,57 @@
+JN9B_App程序自V21.05B版开始使用HC1.40版库，相关说明如下:
+1、每次打开工程需将RTE_Components.h文件第17行修改为 #define CMSIS_device_header "HC32_COMMON.h"
+
+JN9B中断使用整理：
+##中断源				优先级					中断回调函数								功能描述			
+TimerA_1		DDL_IRQ_PRIORITY_03		TimerAUnit1_OvfIrqCallback			内部、全局保护检测，检查告警标志触发告警任务、功率板硬件故障读取、告警清除标志检测处理
+TimerA_2		DDL_IRQ_PRIORITY_04		TimerAUnit2_OvfIrqCallback			喂狗、CAN组网数据包解析处理及发昂数据处理，风扇故障、电池过压及在位信号读取，风扇调速
+TimerA_3		DDL_IRQ_PRIORITY_05		TimerAUnit3_OvfIrqCallback			记录数据上抛、内部ADC采样通道切换、7606采样切换、端口电压采样处理、ADC采样数据计算处理
+TimerA_4		DDL_IRQ_PRIORITY_00		TimerAUnit4_OvfIrqCallback			运行时计数
+
+ADC3_DMA		DDL_IRQ_PRIORITY_03		  DMA_Btc0_IrqCallback							清内部ADC-DMA标志
+CAN1			DDL_IRQ_PRIORITY_02			CAN1_IrqCallback						 CAN组网数据包接收处理
+CAN2			DDL_IRQ_PRIORITY_02			CAN2_IrqCallback						与ACDC通信（不用）
+AD7175			DDL_IRQ_PRIORITY_14		AD7175_EXINT_IrqCallback				输出电流Iout以及Sense电压采样处理
+AD7124			DDL_IRQ_PRIORITY_13		AD7124_EXINT_IrqCallback						探针电压Vtz采样处理
+
+#AD7606_0		DDL_IRQ_PRIORITY_14		AD7606_Busy0_EXINT_IrqCallback					Vsense电压采样处理
+#AD7606_1		DDL_IRQ_PRIORITY_14		AD7606_Busy0_EXINT_IrqCallback					Iout采样处理
+#SGM58601		DDL_IRQ_PRIORITY_14		 SGM58601_EXINT_IrqCallback				       探针电压Vtz采样处理
+
+Fault1			DDL_IRQ_PRIORITY_11		PowerFault1_EXINT_IrqCallback				功率板1硬件故障标志置位
+Fault2			DDL_IRQ_PRIORITY_01		PowerFault2_EXINT_IrqCallback				功率板2硬件故障标志置位
+Fault3			DDL_IRQ_PRIORITY_02		PowerFault3_EXINT_IrqCallback				功率板3硬件故障标志置位
+Fault4			DDL_IRQ_PRIORITY_07		PowerFault4_EXINT_IrqCallback				功率板4硬件故障标志置位
+Fault5			DDL_IRQ_PRIORITY_08		PowerFault5_EXINT_IrqCallback				功率板5硬件故障标志置位
+Fault6			DDL_IRQ_PRIORITY_09		PowerFault6_EXINT_IrqCallback				功率板6硬件故障标志置位
+Fault7			DDL_IRQ_PRIORITY_10		PowerFault7_EXINT_IrqCallback				功率板7硬件故障标志置位
+Fault8			DDL_IRQ_PRIORITY_11		PowerFault8_EXINT_IrqCallback				功率板8硬件故障标志置位
+
+2022.07.05 拟修改为：
+##中断源				优先级					中断回调函数								功能描述			
+TimerA_1		DDL_IRQ_PRIORITY_09		TimerAUnit1_OvfIrqCallback			内部、全局保护检测，检查告警标志触发告警任务、功率板硬件故障读取、告警清除标志检测处理	//，风扇故障、电池过压及在位信号读取，风扇调速//9
+TimerA_2		DDL_IRQ_PRIORITY_03		TimerAUnit2_OvfIrqCallback			喂狗、CAN组网数据包解析处理及发昂数据处理	//3
+TimerA_3		DDL_IRQ_PRIORITY_09		TimerAUnit3_OvfIrqCallback			内部ADC采样通道切换、7606采样切换、端口电压采样处理、ADC采样数据计算处理	//9
+TimerA_4		DDL_IRQ_PRIORITY_01		TimerAUnit4_OvfIrqCallback			运行时计数、记录数据上抛
+
+ADC3_DMA		DDL_IRQ_PRIORITY_02		  DMA_Btc0_IrqCallback							清内部ADC-DMA标志
+CAN1			DDL_IRQ_PRIORITY_02			CAN1_IrqCallback						 CAN组网数据包接收处理
+
+#CAN2			DDL_IRQ_PRIORITY_02			CAN2_IrqCallback						与ACDC通信（不用）
+#AD7175			DDL_IRQ_PRIORITY_14		AD7175_EXINT_IrqCallback				输出电流Iout以及Sense电压采样处理
+#AD7124			DDL_IRQ_PRIORITY_13		AD7124_EXINT_IrqCallback						探针电压Vtz采样处理
+
+AD7606_0		DDL_IRQ_PRIORITY_02		AD7606_Busy0_EXINT_IrqCallback					Vsense电压采样处理
+AD7606_1		DDL_IRQ_PRIORITY_02		AD7606_Busy0_EXINT_IrqCallback					Iout采样处理
+SGM58601		DDL_IRQ_PRIORITY_02		 SGM58601_EXINT_IrqCallback				       探针电压Vtz采样处理
+
+Fault1			DDL_IRQ_PRIORITY_10		PowerFault1_EXINT_IrqCallback				功率板1硬件故障标志置位
+Fault2			DDL_IRQ_PRIORITY_10		PowerFault2_EXINT_IrqCallback				功率板2硬件故障标志置位
+Fault3			DDL_IRQ_PRIORITY_10		PowerFault3_EXINT_IrqCallback				功率板3硬件故障标志置位
+Fault4			DDL_IRQ_PRIORITY_10		PowerFault4_EXINT_IrqCallback				功率板4硬件故障标志置位
+Fault5			DDL_IRQ_PRIORITY_10		PowerFault5_EXINT_IrqCallback				功率板5硬件故障标志置位
+Fault6			DDL_IRQ_PRIORITY_10		PowerFault6_EXINT_IrqCallback				功率板6硬件故障标志置位
+Fault7			DDL_IRQ_PRIORITY_10		PowerFault7_EXINT_IrqCallback				功率板7硬件故障标志置位
+Fault8			DDL_IRQ_PRIORITY_10		PowerFault8_EXINT_IrqCallback				功率板8硬件故障标志置位
+
+

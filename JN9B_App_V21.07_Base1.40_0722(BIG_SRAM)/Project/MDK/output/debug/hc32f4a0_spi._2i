@@ -1,0 +1,11 @@
+--c99 -c --cpu Cortex-M4.fp.sp -D__RTX -D__MICROLIB --li -g -O0 --apcs=interwork --split_sections -I ..\..\Libraries\driver\inc -I ..\..\User -I ..\..\User\BSP -I ..\..\User\w5500_sdk -I ..\..\User\Libapp -I ..\..\User\BSP\inc -I ..\..\User\can -I ..\Common --diag_suppress=186,66
+-I.\RTE\CMSIS
+-I.\RTE\Compiler
+-I.\RTE\_HC32F4A0SITB_Template
+-ID:\Software_User\MDK5\PACK\ARM\CMSIS\5.7.0\CMSIS\Core\Include
+-ID:\Software_User\MDK5\PACK\ARM\CMSIS\5.7.0\CMSIS\RTOS2\Include
+-ID:\Software_User\MDK5\PACK\ARM\CMSIS\5.7.0\CMSIS\RTOS2\RTX\Include
+-ID:\Software_User\MDK5\PACK\HDSC\HC32F4A0\1.0.4\Device\Include
+-ID:\Software_User\MDK5\PACK\Keil\ARM_Compiler\1.6.3\Include
+-D__UVISION_VERSION="532" -D_RTE_ -D_RTE_ -D__DEBUG -DHC32F4A0 -DUSE_DDL_DRIVER -DV_MOD_SP
+-o .\output\debug\hc32f4a0_spi.o --depend .\output\debug\hc32f4a0_spi.d --feedback ".\output\debug\HC32F4A0SITB.fed" "..\..\Libraries\driver\src\hc32f4a0_spi.c"

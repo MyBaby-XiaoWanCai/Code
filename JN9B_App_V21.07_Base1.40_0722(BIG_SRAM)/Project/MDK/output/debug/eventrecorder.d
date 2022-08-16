@@ -1,0 +1,15 @@
+.\output\debug\eventrecorder.o: D:\Software_User\MDK5\PACK\Keil\ARM_Compiler\1.6.3\Source\EventRecorder.c
+.\output\debug\eventrecorder.o: .\RTE\_HC32F4A0SITB_Template\RTE_Components.h
+.\output\debug\eventrecorder.o: ..\Common\HC32_COMMON.h
+.\output\debug\eventrecorder.o: D:\Software_User\MDK5\ARM\ARMCC\Bin\..\include\stddef.h
+.\output\debug\eventrecorder.o: D:\Software_User\MDK5\ARM\ARMCC\Bin\..\include\string.h
+.\output\debug\eventrecorder.o: ..\Common\hc32f4a0.h
+.\output\debug\eventrecorder.o: D:\Software_User\MDK5\PACK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\core_cm4.h
+.\output\debug\eventrecorder.o: D:\Software_User\MDK5\ARM\ARMCC\Bin\..\include\stdint.h
+.\output\debug\eventrecorder.o: D:\Software_User\MDK5\PACK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_version.h
+.\output\debug\eventrecorder.o: D:\Software_User\MDK5\PACK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_compiler.h
+.\output\debug\eventrecorder.o: D:\Software_User\MDK5\PACK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_armcc.h
+.\output\debug\eventrecorder.o: D:\Software_User\MDK5\PACK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\mpu_armv7.h
+.\output\debug\eventrecorder.o: ..\Common\system_hc32f4a0.h
+.\output\debug\eventrecorder.o: D:\Software_User\MDK5\PACK\Keil\ARM_Compiler\1.6.3\Include\EventRecorder.h
+.\output\debug\eventrecorder.o: .\RTE\Compiler\EventRecorderConf.h
